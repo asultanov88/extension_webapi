@@ -39,7 +39,7 @@ class ClientProjectsController extends Controller
 
                 $project->update([
                     'projectKey' => $request['projectKey'],
-                    'lkProjectStatusId' => $request['isActive'] == 1?
+                    'lkProjectStatusId' => $request['isActive'] == 1 ?
                                            $activeStatus : $inactiveStatus,
                     'jiraId' => $request['saveToJira'] == 0?
                                 null : $request['jiraId'],
