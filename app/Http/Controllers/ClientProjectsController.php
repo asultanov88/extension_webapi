@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\LkProjectStatus;
 use Illuminate\Http\Request;
 use App\Models\Projects;
+use App\Models\Modules;
+
 
 class ClientProjectsController extends Controller
 {
@@ -73,12 +75,19 @@ class ClientProjectsController extends Controller
         try {
 
             $projects = null;
+            $query = $request['query'];
 
             if($request['includeInactive'] == 1){
 
                 $projects = Projects::where('clientId','=',$request['clientId'])
-                                    ->whereRaw('LOWER(projectKey) LIKE LOWER(?)', ["%{$request['query']}%"])
+                                    ->where('projectKey','like', '%'.$query.'%')
                                     ->get();
+
+                // Check if selected project is referenced by modules. Allow delete if not referenced.
+                $modulesProjectIds = array_column(Modules::get('projectId')->toArray(), 'projectId');
+                foreach($projects as $project){
+                    $project['allowDelete'] = in_array($project['id'], $modulesProjectIds) ? 0 : 1;
+                }
 
             }elseif($request['includeInactive'] == 0){
 
@@ -86,12 +95,12 @@ class ClientProjectsController extends Controller
 
                 $projects = Projects::where('clientId','=',$request['clientId'])
                                     ->where('LkProjectStatusId','=',$activeStatus)
-                                    ->whereRaw('LOWER(projectKey) LIKE LOWER(?)', ["%{$request['query']}%"])
+                                    ->where('projectKey','like', '%'.$query.'%')
                                     ->get();
             }
 
             $response = [
-                'result' => $projects
+                'result' => $projects,
             ];
 
             return response()->

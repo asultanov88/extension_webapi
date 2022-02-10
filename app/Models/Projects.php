@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Modules;
 
 class Projects extends Model
 {
@@ -18,5 +19,4 @@ class Projects extends Model
         'clientId',
         'lkProjectStatusId',
     ];
-
 }
