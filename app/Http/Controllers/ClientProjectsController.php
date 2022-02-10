@@ -100,7 +100,7 @@ class ClientProjectsController extends Controller
             }
 
             foreach($projects as $project){
-                $project['saveToJira'] = is_int($project['jiraId']) ? 0 : 1;
+                $project['saveToJira'] = $project['jiraId'] == null ? 0 : 1;
             }
 
             $response = [
