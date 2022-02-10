@@ -19,7 +19,7 @@ class ClientProjectsController extends Controller
                 'id'=>'required|integer|gt:0',
                 'projectKey'=>'required|max:10',
                 'saveToJira'=>'required|integer|between:0,1',
-                'isActive'=>'required|integer|between:0,1'
+                'lkProjectStatusId'=>'required|integer|between:1,2'
             ]
         );
 
@@ -41,7 +41,7 @@ class ClientProjectsController extends Controller
 
                 $project->update([
                     'projectKey' => $request['projectKey'],
-                    'lkProjectStatusId' => $request['isActive'] == 1 ?
+                    'lkProjectStatusId' => $request['lkProjectStatusId'] == 1 ?
                                            $activeStatus : $inactiveStatus,
                     'jiraId' => $request['saveToJira'] == 0?
                                 null : $request['jiraId'],
