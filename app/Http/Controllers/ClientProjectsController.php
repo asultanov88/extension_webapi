@@ -99,6 +99,10 @@ class ClientProjectsController extends Controller
                                     ->get();
             }
 
+            foreach($projects as $project){
+                $project['saveToJira'] = is_int($project['jiraId']) ? 0 : 1;
+            }
+
             $response = [
                 'result' => $projects,
             ];
