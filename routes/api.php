@@ -23,3 +23,4 @@ use App\Http\Controllers\ClientProjectsController;
 Route::middleware('client')->get('/project', [ClientProjectsController::class, 'getProject']);
 Route::middleware('client')->post('/project', [ClientProjectsController::class, 'postProject']);
 Route::middleware('client')->patch('/project', [ClientProjectsController::class, 'patchProject']);
+Route::middleware('client')->delete('/project', [ClientProjectsController::class, 'deleteProject']);

@@ -10,6 +10,37 @@ use App\Models\Modules;
 
 class ClientProjectsController extends Controller
 {
+
+    /**
+     * Deletes projects that have no reference in Modules table.
+     */
+    public function deleteProject(Request $request){
+        $request->validate([
+            'id'=>'required|integer|gt:0'
+        ]);
+
+            try {
+                $modules = array_column(Modules::all()->toArray(), 'projectId');
+
+            if(!in_array($request['id'], $modules)){
+                $unusedProjects = Projects::where('clientId', '=', $request['clientId'])
+                                        ->where('id','=',$request['id']);
+                
+                $unusedProjects->delete();
+
+                return response()->
+                json(['status'=>'success'], 200);
+
+            }else{
+                return response()->
+                json(['status'=>'unable to delete'], 500); 
+            }
+        } catch (Exception $e) {
+            return response()->
+            json([$e=>'error'], 500);     
+        }
+    }
+
     /**
      * Updates a project by ID.
      */
