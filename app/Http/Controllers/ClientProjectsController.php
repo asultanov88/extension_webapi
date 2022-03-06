@@ -16,25 +16,34 @@ class ClientProjectsController extends Controller
      */
     public function deleteProject(Request $request){
         $request->validate([
-            'id'=>'required|integer|gt:0'
+            'id'=>'required|integer|gt:0|exists:projects,id'
         ]);
 
             try {
-                $modules = array_column(Modules::all()->toArray(), 'projectId');
-
-            if(!in_array($request['id'], $modules)){
-                $unusedProjects = Projects::where('clientId', '=', $request['clientId'])
-                                        ->where('id','=',$request['id']);
                 
-                $unusedProjects->delete();
+                $project = Projects::with('modules')
+                                    ->where('id','=',$request['id'])
+                                    ->where('clientId','=',$request['clientId'])
+                                    ->first();
 
-                return response()->
-                json(['status'=>'success'], 200);
+            if(!is_null($project)){
 
-            }else{
-                return response()->
-                json(['status'=>'unable to delete'], 500); 
+                if(count($project['modules']) > 0){
+      
+                    return response()->
+                    json(['status'=>'unable to delete'], 500); 
+    
+                }else{               
+    
+                    $project->delete();
+    
+                    return response()->
+                    json(['status'=>'success'], 200);
+    
+                }
+                
             }
+            
         } catch (Exception $e) {
             return response()->
             json([$e=>'error'], 500);     
@@ -47,7 +56,7 @@ class ClientProjectsController extends Controller
     public function patchProject(Request $request){
 
         $request->validate([
-                'id'=>'required|integer|gt:0',
+                'id'=>'required|integer|gt:0|exists:projects,id',
                 'projectKey'=>'required|max:10',
                 'saveToJira'=>'required|integer|between:0,1',
                 'lkProjectStatusId'=>'required|integer|between:1,2'
@@ -77,14 +86,16 @@ class ClientProjectsController extends Controller
                     'jiraId' => $request['saveToJira'] == 0?
                                 null : $request['jiraId'],
                 ]);
+
+                
+                $response = [
+                    'result'=>'success',
+                ];
+
+                return response()->
+                json($response, 200);
+
             }
-
-            $response = [
-                'result'=>'success',
-            ];
-
-            return response()->
-            json($response, 200);
 
         } catch (Exception $e) {
             return response()->
@@ -110,24 +121,30 @@ class ClientProjectsController extends Controller
 
             if($request['includeInactive'] == 1){
 
-                $projects = Projects::where('clientId','=',$request['clientId'])
+                $projects = Projects::with('modules')
+                                    ->where('clientId','=',$request['clientId'])
                                     ->where('projectKey','like', '%'.$query.'%')
                                     ->get();
 
                 // Check if selected project is referenced by modules. Allow delete if not referenced.
-                $modulesProjectIds = array_column(Modules::get('projectId')->toArray(), 'projectId');
                 foreach($projects as $project){
-                    $project['allowDelete'] = in_array($project['id'], $modulesProjectIds) ? 0 : 1;
+                    $project['allowDelete'] = count($project['modules']) > 0 ? 0 : 1;
                 }
 
             }elseif($request['includeInactive'] == 0){
 
                 $activeStatus = LkProjectStatus::where('description','=','active')->first()->id;
 
-                $projects = Projects::where('clientId','=',$request['clientId'])
+                $projects = Projects::with('modules')
+                                    ->where('clientId','=',$request['clientId'])
                                     ->where('LkProjectStatusId','=',$activeStatus)
                                     ->where('projectKey','like', '%'.$query.'%')
                                     ->get();
+
+                // Check if selected project is referenced by modules. Allow delete if not referenced.
+                foreach($projects as $project){
+                    $project['allowDelete'] = count($project['modules']) > 0 ? 0 : 1;
+                }
             }
 
             foreach($projects as $project){

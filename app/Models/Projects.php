@@ -19,4 +19,8 @@ class Projects extends Model
         'clientId',
         'lkProjectStatusId',
     ];
+
+    public function modules(){
+        return $this->hasMany(Modules::class, 'projectId', 'id');
+    }
 }

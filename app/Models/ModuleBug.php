@@ -11,6 +11,8 @@ class ModuleBug extends Model
 
     protected $table='module_bugs';
 
+    protected $primaryKey = 'bugId';
+
     protected $fillable=[
         'bugId',
         'moduleId',
