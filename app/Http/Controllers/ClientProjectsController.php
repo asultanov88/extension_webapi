@@ -87,13 +87,8 @@ class ClientProjectsController extends Controller
                                 null : $request['jiraId'],
                 ]);
 
-                
-                $response = [
-                    'result'=>'success',
-                ];
-
                 return response()->
-                json($response, 200);
+                json(['result' => $project], 200);
 
             }
 

@@ -61,21 +61,22 @@ class ClientModulesController extends Controller
 
         try {
 
-            DB::table('modules')
-            ->where('moduleId','=',$request['id'])
-            ->join('projects','projects.id','=','modules.projectId')
-            ->where('projects.clientId','=',$request['clientId'])
-            ->update([
-                'name'=>$request['name'],
-                'description'=>$request['description'],
-            ]);
-    
-            $response = [
-                'result'=>'success',
-            ];
-            
-            return response()->
-            json($response, 200);
+            $module = Modules::where('moduleId','=',$request['id'])
+                        ->join('projects','projects.id','=','modules.projectId')
+                        ->where('projects.clientId','=',$request['clientId'])
+                        ->first();
+
+            if(!is_null($module)){
+
+                $module->update([
+                    'name'=>$request['name'],
+                    'description'=>$request['description'],
+                ]);
+
+                return response()->
+                json(['result' => $module], 200);
+
+            }              
 
         } catch (Exception $e) {
             return response()->
@@ -117,7 +118,7 @@ class ClientModulesController extends Controller
             }
 
             return response()->
-            json($modulesResult, 200);
+            json(['result' => $modulesResult], 200);
 
         } catch (Exception $e) {
             return response()->
