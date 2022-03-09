@@ -146,12 +146,8 @@ class ClientProjectsController extends Controller
                 $project['saveToJira'] = $project['jiraId'] == null ? 0 : 1;
             }
 
-            $response = [
-                'result' => $projects,
-            ];
-
             return response()->
-            json($response, 200);
+            json(['result' => $projects], 200);
 
         } catch (Exception $e) {
             return response()->
@@ -217,7 +213,7 @@ class ClientProjectsController extends Controller
             $projects->save();
 
             return response()->
-            json($projects, 200);
+            json(['result' => $projects], 200);
 
         } catch (Exception $e) {
 

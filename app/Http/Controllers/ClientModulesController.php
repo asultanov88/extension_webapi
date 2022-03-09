@@ -162,7 +162,7 @@ class ClientModulesController extends Controller
             $modules->save();
 
             return response()->
-            json($modules, 200);
+            json(['result' => $modules], 200);
 
         } catch (Exception $e) {
             return response()->
