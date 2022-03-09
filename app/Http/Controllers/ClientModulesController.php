@@ -142,7 +142,7 @@ class ClientModulesController extends Controller
                 ->whereRaw('LOWER(name) = LOWER(?)', ["{$request['name']}"])
                 ->first();
 
-            // Return error if module name already exists fot given projectId.
+            // Return error if module name already exists for given projectId.
             if(!is_null($existingModule)){
 
                 $errResponse = [
