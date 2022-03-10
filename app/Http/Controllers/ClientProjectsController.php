@@ -69,6 +69,24 @@ class ClientProjectsController extends Controller
             ]);
         }
 
+        // Check if duplicate project exists before update.
+        $duplicateExists = Projects::where('clientId','=',$request['clientId'])
+                                    ->where(function($query) use ($request)
+                                    {
+                                        $query->whereRaw("LOWER(projectKey) = '".strtolower($request['projectKey']."'"))
+                                        ->orWhere('jiraId','=',$request['jiraId']);
+                                    })->first();
+
+        if(!is_null($duplicateExists)){
+            $errResponse = [
+                'error' => 'project already exists',
+                'result' => $duplicateExists,
+            ];
+
+            return response()->
+            json($errResponse, 500);
+        }
+
         try {
 
             $project = Projects::where('clientId','=', $request['clientId'])

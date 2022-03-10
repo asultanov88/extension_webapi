@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientProjectsController;
 use App\Http\Controllers\ClientModulesController;
+use App\Http\Controllers\ModuleBugs;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,3 +33,7 @@ Route::middleware('client')->post('/module', [ClientModulesController::class, 'p
 Route::middleware('client')->get('/module', [ClientModulesController::class, 'getModule']);
 Route::middleware('client')->patch('/module', [ClientModulesController::class, 'patchModule']);
 Route::middleware('client')->delete('/module', [ClientModulesController::class, 'deleteModule']);
+
+// Bug.
+Route::middleware('client')->post('/bug', [ModuleBugs::class, 'postBug']);
+
