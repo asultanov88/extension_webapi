@@ -12,6 +12,40 @@ class ClientProjectsController extends Controller
 {
 
     /**
+     * Activates or inactivates projects status.
+     */
+    public function patchProjectStatus(Request $request){
+        $request->validate([
+            'id'=>'required|integer|gt:0|exists:projects,id',
+            'lkProjectStatusId'=>'required|integer|between:1,2'
+        ]);
+
+        $activeStatus = LkProjectStatus::where('description','=','active')->first()->id;
+        $inactiveStatus = LkProjectStatus::where('description','=','inactive')->first()->id;
+
+        try {
+            
+            $project = Projects::where('clientId','=',$request['clientId'])
+                                ->where('id','=',$request['id'])
+                                ->first();
+
+            $project->update([                
+                'lkProjectStatusId' => $request['lkProjectStatusId'] == 1 
+                                        ? $activeStatus 
+                                        : $inactiveStatus,
+            ]);
+
+            return response()->
+            json(['result' => $project], 200);
+
+        } catch (Exception $e) {
+            return response()->
+            json([$e=>'error'], 500);     
+        }
+
+    }
+
+    /**
      * Deletes projects that have no reference in Modules table.
      */
     public function deleteProject(Request $request){
@@ -58,9 +92,7 @@ class ClientProjectsController extends Controller
         $request->validate([
                 'id'=>'required|integer|gt:0|exists:projects,id',
                 'projectKey'=>'required|max:10',
-                'saveToJira'=>'required|integer|between:0,1',
-                'lkProjectStatusId'=>'required|integer|between:1,2'
-            ]
+                'saveToJira'=>'required|integer|between:0,1',            ]
         );
 
         if($request['saveToJira'] == 1){
@@ -73,8 +105,13 @@ class ClientProjectsController extends Controller
         $duplicateExists = Projects::where('clientId','=',$request['clientId'])
                                     ->where(function($query) use ($request)
                                     {
-                                        $query->whereRaw("LOWER(projectKey) = '".strtolower($request['projectKey']."'"))
-                                        ->orWhere('jiraId','=',$request['jiraId']);
+                                        
+                                        // Check for jiraId match only if saveToJira is 1 (true).
+                                        $request['saveToJira'] == 1
+                                        ? $query->whereRaw('LOWER(projectKey) = LOWER(?)', ["{$request['projectKey']}"])
+                                          ->orWhere('jiraId','=',$request['jiraId'])
+                                        : $query->whereRaw('LOWER(projectKey) = LOWER(?)', ["{$request['projectKey']}"]);
+                                    
                                     })->first();
 
         if(!is_null($duplicateExists)){
@@ -94,13 +131,8 @@ class ClientProjectsController extends Controller
 
             if(!is_null($project)){
 
-                $activeStatus = LkProjectStatus::where('description','=','active')->first()->id;
-                $inactiveStatus = LkProjectStatus::where('description','=','inactive')->first()->id;
-
                 $project->update([
-                    'projectKey' => $request['projectKey'],
-                    'lkProjectStatusId' => $request['lkProjectStatusId'] == 1 ?
-                                           $activeStatus : $inactiveStatus,
+                    'projectKey' => $request['projectKey'],                    
                     'jiraId' => $request['saveToJira'] == 0?
                                 null : $request['jiraId'],
                 ]);

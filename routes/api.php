@@ -27,6 +27,8 @@ Route::middleware('client')->get('/project', [ClientProjectsController::class, '
 Route::middleware('client')->post('/project', [ClientProjectsController::class, 'postProject']);
 Route::middleware('client')->patch('/project', [ClientProjectsController::class, 'patchProject']);
 Route::middleware('client')->delete('/project', [ClientProjectsController::class, 'deleteProject']);
+Route::middleware('client')->patch('/project-status', [ClientProjectsController::class, 'patchProjectStatus']);
+
 
 // Module.
 Route::middleware('client')->post('/module', [ClientModulesController::class, 'postModule']);
