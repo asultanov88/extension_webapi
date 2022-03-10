@@ -61,6 +61,35 @@ class ClientModulesController extends Controller
 
         try {
 
+            $matchingModules = Modules::whereRaw('LOWER(name) = LOWER(?)', ["{$request['name']}"])
+                                ->join('projects','projects.id','=','modules.projectId')
+                                ->where('projects.clientId','=',$request['clientId'])
+                                ->first();
+
+            $requestModule = Modules::where('moduleId','=',$request['id'])
+                                    ->join('projects','projects.id','=','modules.projectId')
+                                    ->where('projects.clientId','=',$request['clientId'])
+                                    ->first();
+
+            if(!is_null($matchingModules)){
+
+                $duplicateExists = $matchingModules['projectId'] == $requestModule['projectId']
+                                ? true
+                                : false;
+                                
+                if($duplicateExists){
+                    $errResponse = [
+                        'error' => 'module already exists',
+                        'result' => $matchingModules,
+                    ];
+        
+                    return response()->
+                    json($errResponse, 500);
+                }
+                
+            }
+
+
             $module = Modules::where('moduleId','=',$request['id'])
                         ->join('projects','projects.id','=','modules.projectId')
                         ->where('projects.clientId','=',$request['clientId'])
