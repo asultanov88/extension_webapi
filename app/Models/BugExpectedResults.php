@@ -15,4 +15,9 @@ class BugExpectedResults extends Model
         'bugId',
         'expectedResult'
     ];
+
+    // 'bugId' is the foreign key in 'bug_actual_result' table.
+    public function bug(){
+        return $this->belongsTo(ModuleBug::class, 'bugId');
+    }
 }
