@@ -285,9 +285,9 @@ class ClientProjectsController extends Controller
 
         if(!is_dir($path)){
             try {
-                mkdir($path, 0777, true); 
+                mkdir($path, 755, true); 
             } catch (Exception $e) {
-                chmod($path, 0777);
+                chmod($path, 755);
             }
         }  
         
