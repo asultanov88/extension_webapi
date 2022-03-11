@@ -282,7 +282,7 @@ class ClientProjectsController extends Controller
     private function createMediaDirectory($uuid){
         // The location of the dir: *project_folder/Public/Media/*user_uuid.
         if(!is_dir(getcwd().'/'.'Media/'.$uuid)){
-            mkdir(getcwd().'/'.'Media/'.$uuid, null, true);            
+            mkdir(getcwd().'/'.'Media/'.$uuid, 0777, true);            
         }  
         
         return getcwd().'/'.'Media/'.$uuid;
