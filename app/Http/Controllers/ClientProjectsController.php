@@ -280,15 +280,11 @@ class ClientProjectsController extends Controller
      * Creates a media directory for each user based on user's UUID.
      */
     private function createMediaDirectory($uuid){
-        // The location of the dir: *project_folder/Public/Media/*user_uuid.
         $path = getcwd().'/'.'Media/'.$uuid;
-
+        // The location of the dir: *project_folder/Public/Media/*user_uuid.
         if(!is_dir($path)){
-            try {
-                mkdir($path, 755, true); 
-            } catch (Exception $e) {
-                chmod($path, 755);
-            }
+            echo $path;
+            mkdir($path.$uuid, 0755, true);            
         }  
         
         return $path;
