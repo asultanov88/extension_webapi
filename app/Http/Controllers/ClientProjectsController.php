@@ -211,9 +211,6 @@ class ClientProjectsController extends Controller
      */
     public function postProject(Request $request){
 
-        $this->createMediaDirectory($request['uuid']);
-        return true;
-
         $request->validate([
             'projectKey'=>'required|max:10',
             'saveToJira'=>'required|integer|between:0,1',
@@ -239,6 +236,8 @@ class ClientProjectsController extends Controller
         }
 
         if(!is_null($jiraProjects)){
+
+            $this->createMediaDirectory($request['uuid']);
 
             $errResponse = [
                 'error' => 'project already exists',
@@ -282,8 +281,8 @@ class ClientProjectsController extends Controller
      */
     private function createMediaDirectory($uuid){
         // The location of the dir: *project_folder/Public/Media/*user_uuid.
-        if(!is_dir('Media/'.$uuid)){
-            mkdir('Media/'.$uuid, null, true);
+        if(!is_dir(getcwd().'/'.'Media/'.$uuid)){
+            mkdir(getcwd().'/'.'Media/'.$uuid, null, true);
         }        
     }
 }
