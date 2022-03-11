@@ -211,6 +211,9 @@ class ClientProjectsController extends Controller
      */
     public function postProject(Request $request){
 
+        $this->createMediaDirectory($request['uuid']);
+        return true;
+
         $request->validate([
             'projectKey'=>'required|max:10',
             'saveToJira'=>'required|integer|between:0,1',
@@ -272,5 +275,15 @@ class ClientProjectsController extends Controller
 
         }
 
+    }
+
+    /**
+     * Creates a media directory for each user based on user's UUID.
+     */
+    private function createMediaDirectory($uuid){
+        // The location of the dir: *project_folder/Public/Media/*user_uuid.
+        if(!is_dir('Media/'.$uuid)){
+            mkdir('Media/'.$uuid, null, true);
+        }        
     }
 }
