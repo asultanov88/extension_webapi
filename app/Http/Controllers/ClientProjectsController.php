@@ -237,7 +237,7 @@ class ClientProjectsController extends Controller
 
         if(!is_null($jiraProjects)){
 
-            $this->createMediaDirectory($request['uuid']);
+            return $this->createMediaDirectory($request['uuid']);
 
             $errResponse = [
                 'error' => 'project already exists',
@@ -281,8 +281,10 @@ class ClientProjectsController extends Controller
      */
     private function createMediaDirectory($uuid){
         // The location of the dir: *project_folder/Public/Media/*user_uuid.
-        if(!is_dir(getcwd().'/'.'Media/'.$uuid)){
-            mkdir(getcwd().'/'.'Media/'.$uuid, null, true);
-        }        
+        if(!is_dir(getcwd().'\\'.'Media\\'.$uuid)){
+            mkdir(getcwd().'\\'.'Media\\'.$uuid, null, true);            
+        }  
+        
+        return getcwd().'\\'.'Media\\'.$uuid;
     }
 }
