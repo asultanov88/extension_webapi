@@ -19,6 +19,7 @@ class ValidateRegKey
         $request->validate([
             'registrationKey' => 'required',
             'token' => 'required',
+            'uuid' => 'required',
         ]);
 
 
