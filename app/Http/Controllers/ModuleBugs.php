@@ -65,4 +65,9 @@ class ModuleBugs extends Controller
             json($e, 500);
         }
     }
+
+        // Test BLOB
+        public function postBlob(Request $request){
+            return $request;
+        }
 }

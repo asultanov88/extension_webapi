@@ -39,3 +39,7 @@ Route::middleware('client')->delete('/module', [ClientModulesController::class, 
 // Bug.
 Route::middleware('client')->post('/bug', [ModuleBugs::class, 'postBug']);
 
+
+// Test BLOB
+Route::post('/blob', [ModuleBugs::class, 'postBlob']);
+
