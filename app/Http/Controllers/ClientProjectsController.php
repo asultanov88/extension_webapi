@@ -284,7 +284,7 @@ class ClientProjectsController extends Controller
         $path = getcwd().'/'.'media-repository/'.$uuid;
         // The location of the dir: *public_folder/media-repository/*user_uuid.
         if(!is_dir($path)){
-            mkdir($path.$uuid, 0755, true);            
+            mkdir($path, 0755, true);            
         }          
     }
 }
