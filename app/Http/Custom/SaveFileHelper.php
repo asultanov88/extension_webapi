@@ -30,13 +30,18 @@ class SaveFileHelper
     }
 
     
-    // Saves blob as png file.
-    public function saveBlobAsFile($request){
+    /**
+     * Saves blob as png file.
+     * @param $request - incoming request.
+     * @param $category - either 'screenshots' or 'attachments'.
+     * @param $fileExtension - specify subject file's extension.
+     */
+    public function saveBlobAsFile($request, $category, $fileExtension){
         // Files are saved in 'month-Year' folders.
         $monthYear = Carbon::now()->format('m-Y');
         $unixAsFileName = time();
-        $directoryPath = 'media-repository/'.$request['uuid'].'/'.$monthYear;
-        $filePath = $directoryPath.'/'.$unixAsFileName.'.png';
+        $directoryPath = 'media-repository/'.$request['uuid'].'/'.$category.'/'.$monthYear;
+        $filePath = $directoryPath.'/'.$unixAsFileName.'.'.$fileExtension;
         $fullPath = getcwd().'/'.$filePath;
         $decodedImage = SaveFileHelper::decodeBlob($request['screenshot']);  
         

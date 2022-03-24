@@ -56,7 +56,7 @@ class ModuleBugs extends Controller
 
             // saving bug screenshot.
             $saveFileHelper = new SaveFileHelper();
-            $imagePath = $saveFileHelper->saveBlobAsFile($request);
+            $imagePath = $saveFileHelper->saveBlobAsFile($request, 'screenshots', 'png');
             $screenshot = new BugScreenshot();
             $screenshot['screenshotPath'] = $imagePath;
             $bug->screenshot()->save($screenshot);
