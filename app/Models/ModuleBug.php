@@ -6,6 +6,7 @@ use App\Models\BugDescription;
 use App\Models\BugExpectedResults;
 use App\Models\BugStepsToReproduce;
 use App\Models\BugXpath;
+use App\Models\BugScreenshot;
 
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -44,5 +45,9 @@ class ModuleBug extends Model
 
     public function xpath(){
         return $this->hasOne(BugXpath::class, 'bugId', 'bugId');
+    }
+
+    public function screenshot(){
+        return $this->hasMany(BugScreenshot::class, 'bugId', 'bugId');
     }
 }

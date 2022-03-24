@@ -1,11 +1,10 @@
 <?php
 
 namespace App\Models;
-use App\Models\ModuleBug;
-
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ModuleBug;
 
 class BugActualResults extends Model
 {

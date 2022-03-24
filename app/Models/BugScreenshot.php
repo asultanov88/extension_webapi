@@ -6,18 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ModuleBug;
 
-class BugStepsToReproduce extends Model
+class BugScreenshot extends Model
 {
     use HasFactory;
 
-    protected $table = 'bug_steps_to_reproduce';
+    protected $table = 'bug_screenshots';
 
     protected $fillable = [
+        'id',
         'bugId',
-        'stepsToReproduce',
+        'screenshotPath',
     ];
 
-    // 'bugId' is the foreign key in 'bug_steps_to_reproduce' table.
+    // 'bugId' is the foreign key in 'bug_screenshots' table.
     public function bug(){
         return $this->belongsTo(ModuleBug::class, 'bugId');
     }

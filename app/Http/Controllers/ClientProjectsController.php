@@ -235,9 +235,6 @@ class ClientProjectsController extends Controller
                                     ->first();
         }
 
-        // Create media folder for the user.
-        $this->createMediaDirectory($request['uuid']);
-
         if(!is_null($jiraProjects)){
 
             $errResponse = [
@@ -275,16 +272,5 @@ class ClientProjectsController extends Controller
 
         }
 
-    }
-
-    /**
-     * Creates a media directory for each user based on user's UUID.
-     */
-    private function createMediaDirectory($uuid){
-        $path = getcwd().'/'.'media-repository/'.$uuid;
-        // The location of the dir: *public_folder/media-repository/*user_uuid.
-        if(!is_dir($path)){
-            mkdir($path, 0755, true);            
-        }          
     }
 }
