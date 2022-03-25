@@ -11,10 +11,6 @@ class BugAttachmentsController extends Controller
 {
     public function postAttachment(Request $request){
         
-        if ($request->hasFile('attachments')) {
-        
-
-
-        }
+        return $request;
     }
 }
