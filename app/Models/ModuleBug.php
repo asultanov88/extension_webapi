@@ -7,6 +7,7 @@ use App\Models\BugExpectedResults;
 use App\Models\BugStepsToReproduce;
 use App\Models\BugXpath;
 use App\Models\BugScreenshot;
+use App\Models\BugAttachment;
 
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,5 +50,9 @@ class ModuleBug extends Model
 
     public function screenshot(){
         return $this->hasMany(BugScreenshot::class, 'bugId', 'bugId');
+    }
+
+    public function attachment(){
+        return $this->hasMany(BugAttachment::class, 'bugId', 'bugId');
     }
 }

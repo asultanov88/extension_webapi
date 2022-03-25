@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientProjectsController;
 use App\Http\Controllers\ClientModulesController;
 use App\Http\Controllers\ModuleBugs;
+use App\Http\Controllers\BugAttachmentsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,9 @@ Route::middleware('client')->delete('/module', [ClientModulesController::class, 
 
 // Bug.
 Route::middleware('client')->post('/bug', [ModuleBugs::class, 'postBug']);
+
+//Attachment.
+Route::middleware('client')->post('/attachment', [BugAttachmentsController::class, 'postAttachment']);
 
 
 
