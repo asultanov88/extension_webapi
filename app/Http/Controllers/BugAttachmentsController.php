@@ -10,6 +10,14 @@ use App\Models\TempAttachment;
 
 class BugAttachmentsController extends Controller
 {
+  /**
+   * TODO: remove after attachment test.
+   */
+  public function postAttachmentTest(Request $request){
+
+    return $_FILES;
+
+  }
     /**
      * Saves attachment as temporary file.
      */

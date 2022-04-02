@@ -42,7 +42,11 @@ Route::middleware('client')->post('/bug', [ModuleBugs::class, 'postBug']);
 
 //Attachment.
 Route::middleware('client')->post('/attachment', [BugAttachmentsController::class, 'postAttachment']);
-Route::middleware('client')->post('/confirm-attachment', [BugAttachmentsController::class, 'confirmAttachment']);
+
+// Test attachment
+Route::post('/attachment-test', [BugAttachmentsController::class, 'postAttachmentTest']);
+
+
 
 
 
