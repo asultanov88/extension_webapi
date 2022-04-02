@@ -3,6 +3,7 @@
 namespace App\Http\Custom;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class SaveFileHelper
 {    
@@ -52,35 +53,60 @@ class SaveFileHelper
         return $filePath;
     }
 
+    public function saveAttachmentAsTempFile($request){
+
+        $uuidxAsFileName = Str::uuid()->toString(); 
+        $fileExtension = SaveFileHelper::getFileExtension();
+        $directoryPath = 'media-repository/temp_attachments/'.$request['uuid'];
+        $filePath = $directoryPath.'/'.$uuidxAsFileName.'.'.$fileExtension;
+        SaveFileHelper::createMediaDirectory($directoryPath);
+        // Read file from temporary location.
+        $file = file_get_contents($_FILES['attachment']['tmp_name']);
+        file_put_contents($filePath, $file);      
+
+        return [
+            'name' => SaveFileHelper::getFileName(),
+            'tempPath' => $filePath,
+            'uuid' => $uuidxAsFileName,
+        ]; 
+    }
+
     /**
      * Saves saves attached file.
      * @param $request - incoming request.
      * @param $category - either 'screenshots' or 'attachments'.
      */    
-    public function saveAttachmentAsFile($request, $category){
-        // Files are saved in 'month-Year' folders.
-        $monthYear = Carbon::now()->format('m-Y');
-        $directoryPath = 'media-repository/'.$request['uuid'].'/'.$category.'/'.$monthYear;
-        $filePath = $directoryPath.'/'.SaveFileHelper::getFileName();
+    public function saveTempFIleAsPermanent($temp_attachment, $category, $clientUuid, $bugId){  
+        $directoryPath = 'media-repository/'.$clientUuid.'/'.$category.'/'.$bugId;
+        $filePath = $directoryPath.'/'.$temp_attachment['fileName'];
+        $tempFilePath = $temp_attachment['tempPath'];
 
-        if(!SaveFileHelper::checkFileExists($filePath)){
+        // Proceed is temporary file exists.
+        if(SaveFileHelper::checkFileExists($tempFilePath)){
+
             SaveFileHelper::createMediaDirectory($directoryPath);
 
+            // Add unix prefix to file name if file name already exists.
+            if(SaveFileHelper::checkFileExists($filePath)){
+                $filePath = $directoryPath.'/'.time().'_'.$temp_attachment['fileName'];
+            }
+
             // Read file from temporary location.
-            $file = file_get_contents($_FILES['attachment']['tmp_name']);
-            file_put_contents($filePath, $file);      
+            $file = file_get_contents($tempFilePath);
+            // Write to new location.
+            file_put_contents($filePath, $file); 
 
             // Returns file's saved path.
             return $result = [
                 'saved' => true,
                 'filePath' => $filePath,
             ];
+
         }else{
             return $result = [
                 'saved' => false,
             ];
-        }
-        
+        }        
     }
 
     /**
@@ -89,6 +115,15 @@ class SaveFileHelper
     public function getFileName(){
         $fileName = $_FILES['attachment']['name'];
         return $fileName;
+    }
+
+    /**
+     * Gets uploaded file's extension.
+     */
+    public function getFileExtension(){
+        $fileName = $_FILES['attachment']['name'];
+        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+        return $fileExtension;
     }
 
     /**

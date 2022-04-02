@@ -5,48 +5,74 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Custom\SaveFileHelper;
 use App\Models\BugAttachment;
+use App\Models\TempAttachment;
 
 
 class BugAttachmentsController extends Controller
 {
+    /**
+     * Saves attachment as temporary file.
+     */
     public function postAttachment(Request $request){
 
-      $request->validate([
-        'bugId'=>'required|integer|exists:module_bugs,bugId',
-      ]);
-
-      try {
+      try {       
 
         if(!empty($_FILES['attachment'])){
 
-          $saveStatus = SaveFileHelper::saveAttachmentAsFile($request, 'attachments');
-
-          if($saveStatus['saved']){
-
-            $attachmentPath = $saveStatus['filePath'];
-            $attachment = new BugAttachment();
-            $attachment['bugId'] = $request['bugId'];
-            $attachment['attachmentPath'] = $attachmentPath;
-            $attachment->save();
+          $temp_file = SaveFileHelper::saveAttachmentAsTempFile($request);
   
-            return response()->
-            json(['result' => $attachment], 200);
-
-          }else{
-
-            return response()->
-            json(['result' => 'file already exists.'], 500);          
-
-          }
-
+          $tempAttachment = new TempAttachment();
+          $tempAttachment['clientId'] = $request['clientId'];
+          $tempAttachment['uuid'] = $temp_file['uuid'];
+          $tempAttachment['fileName'] = $temp_file['name'];
+          $tempAttachment['tempPath'] = $temp_file['tempPath'];
+          $tempAttachment->save();
+    
+          return response()->
+          json(['result' => $tempAttachment['uuid']], 200);
+  
         }else{
           return response()->
-          json(['result' => 'not attachment found.'], 500);
+          json(['result' => 'no attachment found.'], 500);
         }  
-        
+
       } catch (Exception $e) {
         return response()->
         json($e, 500);
-      }           
+      }
+                 
+    }
+
+    /**
+     * Moves temporary file as permanent attachments.
+     */
+    public function makeAttachmentPermanent($attachmentUuid, $clientUuid, $clientId, $bug){
+
+      try {
+
+          $temp_attachment = TempAttachment::where('clientId', '=', $clientId)
+                                           ->where('uuid', '=', $attachmentUuid)
+                                           ->where('isPermanent','=', 0)
+                                           ->first();
+
+          if(!is_null($temp_attachment)){            
+            $saveStatus = SaveFileHelper::saveTempFIleAsPermanent($temp_attachment, 'attachments', $clientUuid, $bug['bugId']);
+
+            if($saveStatus['saved']){
+              $attachmentPath = $saveStatus['filePath'];
+              $attachment = new BugAttachment();
+              $attachment['attachmentPath'] = $attachmentPath;
+              $bug->attachment()->save($attachment);
+
+              // Mark temp file as permanent in 'temp_attachments' table.
+              $temp_attachment->update([
+                'isPermanent' => 1,
+              ]); 
+            }            
+          }  
+        
+      } catch (Exception $e) {
+        return $e;
+      }
     }
 }

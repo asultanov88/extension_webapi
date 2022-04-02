@@ -9,7 +9,7 @@ use App\Models\BugStepsToReproduce;
 use App\Models\BugXpath;
 use App\Models\BugScreenshot;
 use App\Http\Custom\SaveFileHelper;
-
+use App\Http\Controllers\BugAttachmentsController;
 
 
 use Illuminate\Http\Request;
@@ -26,6 +26,7 @@ class ModuleBugs extends Controller
             'expectedResult'=>'required|string|max:1000|min:1',
             'xpath'=>'required|string|max:500|min:1',
             'screenshot'=>'required',
+            'attachments'=>'required',
         ]);
 
         try {
@@ -61,13 +62,21 @@ class ModuleBugs extends Controller
             $screenshot['screenshotPath'] = $imagePath;
             $bug->screenshot()->save($screenshot);
 
+            // Make attachments permanent if available.
+            foreach ($request['attachments'] as $attachmentUuid){
+                BugAttachmentsController::makeAttachmentPermanent($attachmentUuid, $request['uuid'], $request['clientId'], $bug);
+            }
+
             // Load all relationships before return.
             $bug->actualResult;
             $bug->description;
             $bug->stepsToReproduce;
             $bug->expectedResult;
             $bug->xpath;
-            $bug->screenshot;
+            
+            // No need to load screenshot and attachment relationships for now.
+            //$bug->screenshot;
+            //$bug->attachment;
     
             return response()->
             json(['result' => $bug], 200);    
