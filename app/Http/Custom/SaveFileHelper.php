@@ -11,6 +11,7 @@ class SaveFileHelper
      * Creates a media directory for each user based on user's UUID.
      */
     public function createMediaDirectory($directoryPath){        
+
         // The location of the dir: *public_folder/media-repository/*user_uuid.
         if(!is_dir($directoryPath)){
             mkdir($directoryPath, 0755, true);            
@@ -38,6 +39,7 @@ class SaveFileHelper
      * @param $fileExtension - specify subject file's extension.
      */
     public function saveBlobAsFile($request, $category, $fileExtension){
+
         // Files are saved in 'month-Year' folders.
         $monthYear = Carbon::now()->format('m-Y');
         $unixAsFileName = time();
@@ -76,7 +78,8 @@ class SaveFileHelper
      * @param $request - incoming request.
      * @param $category - either 'screenshots' or 'attachments'.
      */    
-    public function saveTempFIleAsPermanent($temp_attachment, $category, $clientUuid, $bugId){  
+    public function saveTempFIleAsPermanent($temp_attachment, $category, $clientUuid, $bugId){ 
+
         $directoryPath = 'media-repository/'.$clientUuid.'/'.$category.'/'.$bugId;
         $filePath = $directoryPath.'/'.$temp_attachment['fileName'];
         $tempFilePath = $temp_attachment['tempPath'];
@@ -107,6 +110,20 @@ class SaveFileHelper
                 'saved' => false,
             ];
         }        
+    }
+
+    /**
+     * Deletes file by path.
+     */
+    public function deleteFile($filePath){
+        
+        if(SaveFileHelper::checkFileExists($filePath)){
+            unlink($filePath);
+            return true;
+        }else{
+            return false;
+        }
+
     }
 
     /**
