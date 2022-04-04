@@ -45,9 +45,6 @@ Route::middleware('client')->post('/attachment', [BugAttachmentsController::clas
 Route::middleware('client')->delete('/temp-attachment', [BugAttachmentsController::class, 'deleteTempAttachment']);
 
 
-// Test attachment
-Route::post('/attachment-test', [BugAttachmentsController::class, 'postAttachmentTest']);
-
 
 
 

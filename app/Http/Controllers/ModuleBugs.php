@@ -26,7 +26,6 @@ class ModuleBugs extends Controller
             'expectedResult'=>'required|string|max:1000|min:1',
             'xpath'=>'required|string|max:500|min:1',
             'screenshot'=>'required',
-            'attachments'=>'required',
         ]);
 
         try {
@@ -62,9 +61,11 @@ class ModuleBugs extends Controller
             $screenshot['screenshotPath'] = $imagePath;
             $bug->screenshot()->save($screenshot);
 
-            // Make attachments permanent if available.
-            foreach ($request['attachments'] as $attachmentUuid){
-                BugAttachmentsController::makeAttachmentPermanent($attachmentUuid, $request['uuid'], $request['clientId'], $bug);
+            if(!is_null($request['attachments']) && is_array($request['attachments'])){
+                // Make attachments permanent if available.
+                foreach ($request['attachments'] as $attachmentUuid){
+                    BugAttachmentsController::makeAttachmentPermanent($attachmentUuid, $request['uuid'], $request['clientId'], $bug);
+                }
             }
 
             // Load all relationships before return.
