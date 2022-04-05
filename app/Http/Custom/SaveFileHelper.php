@@ -38,12 +38,11 @@ class SaveFileHelper
      * @param $category - either 'screenshots' or 'attachments'.
      * @param $fileExtension - specify subject file's extension.
      */
-    public function saveBlobAsFile($request, $category, $fileExtension){
+    public function saveBlobAsFile($request, $category, $fileExtension, $bug){
 
         // Files are saved in 'month-Year' folders.
-        $monthYear = Carbon::now()->format('m-Y');
         $unixAsFileName = time();
-        $directoryPath = 'media-repository/'.$request['uuid'].'/'.$category.'/'.$monthYear;
+        $directoryPath = 'media-repository/'.$request['uuid'].'/'.$category.'/'.$bug['bugId'];
         $filePath = $directoryPath.'/'.$unixAsFileName.'.'.$fileExtension;
         $fullPath = getcwd().'/'.$filePath;
         $decodedImage = SaveFileHelper::decodeBlob($request['screenshot']);  
