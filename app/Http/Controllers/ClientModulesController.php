@@ -56,7 +56,7 @@ class ClientModulesController extends Controller
         $request->validate([
             'moduleId'=>'required|integer|exists:modules,moduleId',
             'name'=>'required|max:50',
-            'description'=>'required|max:50',
+            'description'=>'required|max:255',
         ]);
 
         try {

@@ -8,6 +8,7 @@ use App\Models\BugStepsToReproduce;
 use App\Models\BugXpath;
 use App\Models\BugScreenshot;
 use App\Models\BugAttachment;
+use App\Models\BugTitle;
 
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,12 +25,17 @@ class ModuleBug extends Model
     protected $fillable=[
         'bugId',
         'moduleId',
+        'lkBugStatusId',
     ];
 
     // 1st 'bugId' is the primary key in 'module_bugs' table.
     // 2nd 'bugId' is the foreign key in 'bug_actual_result' table.
     public function actualResult(){
         return $this->hasOne(BugActualResults::class, 'bugId', 'bugId');
+    }
+
+    public function title(){
+        return $this->hasOne(BugTitle::class, 'bugId', 'bugId');
     }
 
     public function description(){

@@ -8,6 +8,8 @@ use App\Models\BugExpectedResults;
 use App\Models\BugStepsToReproduce;
 use App\Models\BugXpath;
 use App\Models\BugScreenshot;
+use App\Models\BugTitle;
+use App\Models\LkBugStatus;
 use App\Http\Custom\SaveFileHelper;
 use App\Http\Controllers\BugAttachmentsController;
 
@@ -20,6 +22,7 @@ class ModuleBugs extends Controller
         
         $request->validate([
             'moduleId'=>'required|integer|exists:modules,moduleId',
+            'title'=>'required|string|max:100|min:1',
             'actualResult'=>'required|string|max:1000|min:1',
             'description'=>'required|string|max:1000|min:1',
             'stepsToReproduce'=>'required|string|max:1000|min:1',
@@ -29,10 +32,17 @@ class ModuleBugs extends Controller
         ]);
 
         try {
+
+            $activeBugstatus = LkBugStatus::where('description','=','active')->first()->id;
             
             $bug = new ModuleBug();
             $bug['moduleId'] = $request['moduleId'];
+            $bug['lkBugStatusId'] = $activeBugstatus;
             $bug->save();
+
+            $title = new BugTitle();
+            $title['title'] = $request['title'];
+            $bug->title()->save($title);
     
             $actualResult = new BugActualResults();
             $actualResult['actualResults'] = $request['actualResult'];
@@ -69,6 +79,7 @@ class ModuleBugs extends Controller
             }
 
             // Load all relationships before return.
+            $bug->title;
             $bug->actualResult;
             $bug->description;
             $bug->stepsToReproduce;

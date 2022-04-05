@@ -155,7 +155,7 @@ class ClientProjectsController extends Controller
     public function getProject(Request $request){
 
         $request->validate([
-            'query'=>'required|max:50',
+            'query'=>'required|max:10',
             'includeInactive'=>'required|integer|between:0,1',
         ]);
 
