@@ -11,28 +11,21 @@ use App\Models\TempAttachment;
 class BugAttachmentsController extends Controller
 {
   /**
-   * TODO: remove after attachment test.
-   */
-  public function postAttachmentTest(Request $request){
-
-    return $_FILES;
-
-  }
-
-  /**
    * Deletes temporary attachment by uuid.
    */
   public function deleteTempAttachment(Request $request){
 
     $request->validate([
-      'attachment-uuid'=>'required|exists:temp_attachments,uuid',
+      'attachment_uuid'=>'required|exists:temp_attachments,uuid',
     ]);
 
     try {      
       $temp_attachment = TempAttachment::where('clientId', '=', $request['clientId'])
-                                       ->where('uuid', '=', $request['attachment-uuid'])
+                                       ->where('uuid', '=', $request['attachment_uuid'])
                                        ->where('isPermanent','=', 0)
                                        ->first();
+
+      $result = null;
 
       if(!is_null($temp_attachment)){
 
@@ -40,13 +33,13 @@ class BugAttachmentsController extends Controller
 
         if($result){
           $temp_attachment->delete();
-        }
-
-        return $result ? response()->json(['result' => 'success'], 200)
-                       : response()->json(['result' => 'fail'], 500); 
+        }  
 
       }
 
+      return $result ? response()->json(['result' => 'success'], 200)
+                       : response()->json(['result' => 'fail'], 500); 
+                       
     } catch (Exception $e) {
       return response()->
       json($e, 500);
