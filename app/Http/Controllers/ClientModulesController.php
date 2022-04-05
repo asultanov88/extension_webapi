@@ -17,11 +17,11 @@ class ClientModulesController extends Controller
         try {
 
             $request->validate([
-                'id'=>'required|integer|exists:modules,moduleId',
+                'moduleId'=>'required|integer|exists:modules,moduleId',
             ]);
     
             $module = Modules::with('bugs')
-            ->where('moduleId','=',$request['id'])  
+            ->where('moduleId','=',$request['moduleId'])  
             ->join('projects','projects.id','=','modules.projectId')
             ->where('projects.clientId','=',$request['clientId'])
             ->first();
@@ -54,7 +54,7 @@ class ClientModulesController extends Controller
      */
     public function patchModule(Request $request){
         $request->validate([
-            'id'=>'required|integer|exists:modules,moduleId',
+            'moduleId'=>'required|integer|exists:modules,moduleId',
             'name'=>'required|max:50',
             'description'=>'required|max:50',
         ]);
@@ -66,7 +66,7 @@ class ClientModulesController extends Controller
                                 ->where('projects.clientId','=',$request['clientId'])
                                 ->first();
 
-            $requestModule = Modules::where('moduleId','=',$request['id'])
+            $requestModule = Modules::where('moduleId','=',$request['moduleId'])
                                     ->join('projects','projects.id','=','modules.projectId')
                                     ->where('projects.clientId','=',$request['clientId'])
                                     ->first();
@@ -90,7 +90,7 @@ class ClientModulesController extends Controller
             }
 
 
-            $module = Modules::where('moduleId','=',$request['id'])
+            $module = Modules::where('moduleId','=',$request['moduleId'])
                         ->join('projects','projects.id','=','modules.projectId')
                         ->where('projects.clientId','=',$request['clientId'])
                         ->first();
@@ -137,7 +137,7 @@ class ClientModulesController extends Controller
             foreach($modules as $module){
 
                 $result = [
-                    'id' => $module['moduleId'],
+                    'moduleId' => $module['moduleId'],
                     'name' => $module['name'],
                     'description' => $module['description'],
                     'allowDelete' => count($module['bugs']) > 0 ? 0 : 1,
