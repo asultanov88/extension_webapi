@@ -9,6 +9,7 @@ use App\Models\BugXpath;
 use App\Models\BugScreenshot;
 use App\Models\BugAttachment;
 use App\Models\BugTitle;
+use App\Models\BugEnvironment;
 
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -53,6 +54,11 @@ class ModuleBug extends Model
     public function xpath(){
         return $this->hasOne(BugXpath::class, 'bugId', 'bugId');
     }
+
+    public function bugEnvironment(){
+        return $this->hasOne(BugEnvironment::class, 'bugId', 'bugId');
+    }
+
 
     public function screenshot(){
         return $this->hasMany(BugScreenshot::class, 'bugId', 'bugId');

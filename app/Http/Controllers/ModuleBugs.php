@@ -10,6 +10,7 @@ use App\Models\BugXpath;
 use App\Models\BugScreenshot;
 use App\Models\BugTitle;
 use App\Models\LkBugStatus;
+use App\Models\BugEnvironment;
 use App\Http\Custom\SaveFileHelper;
 use App\Http\Controllers\BugAttachmentsController;
 
@@ -28,6 +29,7 @@ class ModuleBugs extends Controller
             'stepsToReproduce'=>'required|string|max:1000|min:1',
             'expectedResult'=>'required|string|max:1000|min:1',
             'xpath'=>'required|string|max:500|min:1',
+            'environmentId'=>'required|integer|exists:environments,environmentId',
             'screenshot'=>'required',
         ]);
 
@@ -39,6 +41,10 @@ class ModuleBugs extends Controller
             $bug['moduleId'] = $request['moduleId'];
             $bug['lkBugStatusId'] = $activeBugstatus;
             $bug->save();
+
+            $environment = new BugEnvironment();
+            $environment['environmentId'] = $request['environmentId'];
+            $bug->bugEnvironment()->save($environment);
 
             $title = new BugTitle();
             $title['title'] = $request['title'];
@@ -80,6 +86,7 @@ class ModuleBugs extends Controller
 
             // Load all relationships before return.
             $bug->title;
+            $bug->bugEnvironment->environment;
             $bug->actualResult;
             $bug->description;
             $bug->stepsToReproduce;

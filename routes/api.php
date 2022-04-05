@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientProjectsController;
 use App\Http\Controllers\ClientModulesController;
 use App\Http\Controllers\ModuleBugs;
 use App\Http\Controllers\BugAttachmentsController;
+use App\Http\Controllers\ClientEnvironmentsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +40,11 @@ Route::middleware('client')->delete('/module', [ClientModulesController::class, 
 
 // Bug.
 Route::middleware('client')->post('/bug', [ModuleBugs::class, 'postBug']);
+
+// Environment.
+Route::middleware('client')->post('/environment', [ClientEnvironmentsController::class, 'postEnvironment']);
+Route::middleware('client')->get('/environment', [ClientEnvironmentsController::class, 'getEnvironment']);
+Route::middleware('client')->delete('/environment', [ClientEnvironmentsController::class, 'deleteEnvironment']);
 
 //Attachment.
 Route::middleware('client')->post('/attachment', [BugAttachmentsController::class, 'postAttachment']);
