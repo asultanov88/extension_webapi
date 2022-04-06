@@ -9,6 +9,32 @@ use App\Models\ModuleBug;
 class ClientEnvironmentsController extends Controller
 {
     /**
+     * Updates environment by ID.
+     */
+    public function patchEnvironment(Request $request){
+        $request->validate([
+            'environmentId'=>'required|integer|exists:environments,environmentId',
+            'name'=>'required|string|max:50',
+        ]);
+
+        try {
+            
+            $environment = Environment::where('environmentId','=',$request['environmentId'])->first();
+
+            $environment->update([
+                'name'=>$request['name'],
+            ]);
+    
+            return response()->
+            json(['result' => $environment], 200); 
+
+        } catch (Exception $e) {
+            return response()->
+            json($e, 500);        
+        }
+    }
+
+    /**
      * Deletes environment by environment ID.
      */
     public function deleteEnvironment(Request $request){
@@ -60,7 +86,7 @@ class ClientEnvironmentsController extends Controller
      */
     public function getEnvironment(Request $request){
         $request->validate([
-            'query'=>'required|min:2'
+            'query'=>'required|string|min:2'
         ]);
 
         try {
@@ -69,12 +95,25 @@ class ClientEnvironmentsController extends Controller
                                        ->where('name', 'like', '%'.$request['query'].'%')
                                        ->get()->toArray();
 
+            // Used to identify if environment is referenced in any bug.
+            $bugs = ModuleBug::with('bugEnvironment')
+                                       ->join('modules','modules.moduleId','=','module_bugs.moduleId')
+                                       ->join('projects','projects.id','=','modules.projectId')
+                                       ->where('projects.clientId','=',$request['clientId'])
+                                       ->get()->toArray();
+
+            // array of referenced environment IDs.
+            $referencedEnvIds = array_map(function ($bugs){
+                return $bugs['bug_environment']['environmentId'];                
+            }, $bugs);
+
             $queryResult = [];
 
             foreach($environments as $env){
                 $result = [
                     'environmentId' => $env['environmentId'],
                     'name' => $env['name'],
+                    'allowDelete' => in_array($env['environmentId'], $referencedEnvIds) ? 0 : 1,
                 ];
 
                 array_push($queryResult, $result);
@@ -94,7 +133,7 @@ class ClientEnvironmentsController extends Controller
      */
     public function postEnvironment(Request $request){
         $request->validate([
-            'name'=>'required|max:50',
+            'name'=>'required|string|max:50',
         ]);
 
         try {
