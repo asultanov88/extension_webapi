@@ -14,7 +14,7 @@ class CreateModuleBugsTable extends Migration
     public function up()
     {
         Schema::create('module_bugs', function (Blueprint $table) {
-            $table->id('bugId');
+            $table->id('bugId')->index();
             $table->foreignId('moduleId')->references('moduleId')->on('Modules');
             $table->integer('lkBugStatusId');
             $table->timestamps();

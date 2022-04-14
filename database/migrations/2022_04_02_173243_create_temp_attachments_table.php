@@ -15,7 +15,7 @@ class CreateTempAttachmentsTable extends Migration
     {
         Schema::create('temp_attachments', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid');
+            $table->uuid('uuid')->index();
             $table->integer('clientId');
             $table->string('tempPath');
             $table->string('fileName');

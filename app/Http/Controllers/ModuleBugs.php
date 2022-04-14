@@ -13,12 +13,79 @@ use App\Models\LkBugStatus;
 use App\Models\BugEnvironment;
 use App\Http\Custom\SaveFileHelper;
 use App\Http\Controllers\BugAttachmentsController;
+use Carbon\Carbon;
 
 
 use Illuminate\Http\Request;
 
 class ModuleBugs extends Controller
 {
+    /**
+     * Get bug list by parameters.
+     */
+    public function getBugList(Request $request){
+        $request->validate([
+            'moduleId'=>'required|integer|exists:modules,moduleId',
+            'environmentId'=>'required|integer|exists:environments,environmentId',
+            'fromDate'=>'required|string',
+            'toDate'=>'required|string',
+        ]);
+
+        try {
+
+            // Reformat dates to match SQL timestamp format.
+            $fromDate = Carbon::parse($request['fromDate']);
+            $toDate = Carbon::parse($request['toDate']);
+            
+            $activeBugstatus = LkBugStatus::where('description','=','active')->first()->id;
+
+            $bugs = ModuleBug::join('bug_titles','bug_titles.bugId','=','module_bugs.bugId')
+                            ->join('bug_xpath','bug_xpath.bugId','=','module_bugs.bugId')
+                            ->join('bug_screenshots','bug_screenshots.bugId','=','module_bugs.bugId')
+                            ->join('bug_environments','bug_environments.bugId','=','module_bugs.bugId')
+                            ->join('modules','modules.moduleId','=','module_bugs.moduleId')
+                            ->join('projects','projects.id','=','modules.projectId')       
+                            ->where('bug_environments.environmentId','=',$request['environmentId'])
+                            ->where('modules.moduleId','=',$request['moduleId'])
+                            ->where('module_bugs.lkBugStatusId','=',$activeBugstatus)
+                            ->where('projects.clientId','=',$request['clientId'])
+                            ->whereBetween('module_bugs.created_at',[$fromDate, $toDate])
+                            ->get(
+                                array(
+                                    'projects.projectKey',
+                                    'module_bugs.bugId',
+                                    'bug_titles.title',
+                                    'bug_xpath.xpath',
+                                    'bug_screenshots.screenshotPath'
+                                )
+                            )
+                            ->toArray();
+
+            $result = [];
+
+            foreach($bugs as $bug){
+                // Adding project key and bug Id to title as prefix.
+                $bug['title'] = $bug['projectKey'].'-'.$bug['bugId'].' '.$bug['title'];
+                // Removing unsused projectKey.
+                unset($bug['projectKey']);
+                // Modifying the screenshot path for public access.
+                $bug['screenshotPath'] = SaveFileHelper::getPublicPath($bug['screenshotPath']);
+                array_push($result, $bug);
+            }
+
+            return response()->
+            json(['result' => $result], 200); 
+
+        } catch (Exception $e) {
+            return response()->
+            json($e, 500);
+        }
+
+    }
+
+    /**
+     * Create new bug.
+     */
     public function postBug(Request $request){
         
         $request->validate([

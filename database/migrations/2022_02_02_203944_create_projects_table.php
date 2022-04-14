@@ -14,10 +14,10 @@ class CreateProjectsTable extends Migration
     public function up()
     {
         Schema::create('projects', function (Blueprint $table) {
-            $table->id('id');
+            $table->id('id')->index();
             $table->integer('jiraId')->nullable();
             $table->string('projectKey');
-            $table->integer('clientId');
+            $table->integer('clientId')->index();
             $table->integer('lkProjectStatusId');
             $table->timestamps();
         });

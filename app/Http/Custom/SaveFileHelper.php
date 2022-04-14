@@ -40,10 +40,9 @@ class SaveFileHelper
      */
     public function saveBlobAsFile($request, $category, $fileExtension, $bug){
 
-        // Files are saved in 'month-Year' folders.
-        $unixAsFileName = time();
+        $uuidAsFileName = Str::uuid()->toString();;
         $directoryPath = 'media-repository/'.$request['uuid'].'/'.$category.'/'.$bug['bugId'];
-        $filePath = $directoryPath.'/'.$unixAsFileName.'.'.$fileExtension;
+        $filePath = $directoryPath.'/'.$uuidAsFileName.'.'.$fileExtension;
         $fullPath = getcwd().'/'.$filePath;
         $decodedImage = SaveFileHelper::decodeBlob($request['screenshot']);  
         
@@ -77,7 +76,7 @@ class SaveFileHelper
      * @param $request - incoming request.
      * @param $category - either 'screenshots' or 'attachments'.
      */    
-    public function saveTempFIleAsPermanent($temp_attachment, $category, $clientUuid, $bugId){ 
+    public function saveTempFileAsPermanent($temp_attachment, $category, $clientUuid, $bugId){ 
 
         $directoryPath = 'media-repository/'.$clientUuid.'/'.$category.'/'.$bugId;
         $filePath = $directoryPath.'/'.$temp_attachment['fileName'];
@@ -148,6 +147,14 @@ class SaveFileHelper
      */
     public function checkFileExists($filePath){
        return file_exists($filePath) ? true : false; 
+    }
+
+    /**
+     * Generates public url for file path.
+     * @param $filePath - path to a file.
+     */
+    public function getPublicPath($filePath){
+        return  env('APP_URL').'/'.$filePath;
     }
 
 }

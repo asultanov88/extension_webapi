@@ -94,7 +94,7 @@ class BugAttachmentsController extends Controller
                                           ->first();
 
         if(!is_null($temp_attachment)){            
-          $saveStatus = SaveFileHelper::saveTempFIleAsPermanent($temp_attachment, 'attachments', $clientUuid, $bug['bugId']);
+          $saveStatus = SaveFileHelper::saveTempFileAsPermanent($temp_attachment, 'attachments', $clientUuid, $bug['bugId']);
 
           if($saveStatus['saved']){
             $attachmentPath = $saveStatus['filePath'];
