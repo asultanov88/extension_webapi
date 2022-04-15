@@ -49,7 +49,8 @@ class ModuleBugs extends Controller
                             ->where('modules.moduleId','=',$request['moduleId'])
                             ->where('module_bugs.lkBugStatusId','=',$activeBugstatus)
                             ->where('projects.clientId','=',$request['clientId'])
-                            ->whereBetween('module_bugs.created_at',[$fromDate, $toDate])
+                            ->whereDate('module_bugs.created_at','>=',$fromDate)
+                            ->whereDate('module_bugs.created_at','<=',$toDate)
                             ->get(
                                 array(
                                     'projects.projectKey',
