@@ -33,10 +33,14 @@ class ModuleBugs extends Controller
 
         try {
 
-            // Reformat dates to match SQL timestamp format.
-            $fromDate = Carbon::parse($request['fromDate']);
-            $toDate = Carbon::parse($request['toDate']);
-            
+            /**
+             * Reformat dates to match SQL timestamp format.
+             * Substracting 1 day from $fromDate and adding 1 day to $toDate 
+             * in order to cover timezone differences.
+             */ 
+            $fromDate = Carbon::parse($request['fromDate'])->subDay();
+            $toDate = Carbon::parse($request['toDate'])->addDay();
+          
             $activeBugstatus = LkBugStatus::where('description','=','active')->first()->id;
 
             $bugs = ModuleBug::join('bug_titles','bug_titles.bugId','=','module_bugs.bugId')
@@ -65,8 +69,10 @@ class ModuleBugs extends Controller
             $result = [];
 
             foreach($bugs as $bug){
-                // Adding project key and bug Id to title as prefix.
-                $bug['title'] = $bug['projectKey'].'-'.$bug['bugId'].' '.$bug['title'];
+                // Setting bug index.
+                $bug['bugIndex'] = $bug['projectKey'].'-'.$bug['bugId'];
+                // Upper casing the first letter of the bug title.
+                $bug['title'] = ucfirst($bug['title']);
                 // Removing unsused projectKey.
                 unset($bug['projectKey']);
                 // Modifying the screenshot path for public access.
