@@ -15,7 +15,7 @@ class CreateBugGlobalSearchesTable extends Migration
     {
         Schema::create('bug_global_searches', function (Blueprint $table) {
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
-            $table->longtext('searchKeyword')->index();
+            $table->string('searchKeyword')->index();
             $table->timestamps();
         });
     }
