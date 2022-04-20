@@ -41,13 +41,22 @@ class ModuleBugs extends Controller
                                 'module_bugs.bugId',
                                 'module_bugs.moduleId',
                                 'module_bugs.lkBugStatusId',
+                                'projects.id AS projectId',
+                                'projects.projectKey',
+                                'modules.name AS moduleName',
+                                'module_bugs.created_at',
+                                'module_bugs.updated_at',
                                 )
                             );
             
             // Construct new object to represent bug.
             $result = [
-                'bugId' => $bug['bugId'],
+                'bugId' => $bug['bugId'], 
+                'bugIndex' => strtoupper($bug['projectKey']).'-'.$bug['bugId'],
+                'projectId' => $bug['projectId'],
+                'projectName' => $bug['projectKey'],               
                 'moduleId' => $bug['moduleId'],
+                'moduleName' => $bug['moduleName'],
                 'lkBugStatusId' => $bug['lkBugStatusId'],
                 'lkBugStatus' => LkBugStatus::where('id','=',$bug['lkBugStatusId'])->first()->description,
                 'bugEnvironment' => $bug['bugEnvironment']['environment']['name'],
@@ -60,6 +69,8 @@ class ModuleBugs extends Controller
                 'xpath' => $bug['xpath']['xpath'],
                 'screenshots' => $this->getPath($bug->screenshot, 'screenshotPath'),
                 'attachments' => $this->getPath($bug->attachment, 'attachmentPath'),
+                'createdAt' => $bug['created_at'],
+                'updatedAt' => $bug['updated_at'],
             ];
             
             return response()->
