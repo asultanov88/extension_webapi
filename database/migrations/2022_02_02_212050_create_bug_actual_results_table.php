@@ -15,7 +15,7 @@ class CreateBugActualResultsTable extends Migration
     {
         Schema::create('bug_actual_result', function (Blueprint $table) {
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
-            $table->string('actualResults');
+            $table->longtext('actualResults');
             $table->timestamps();
         });
     }

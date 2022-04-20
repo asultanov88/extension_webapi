@@ -42,6 +42,7 @@ Route::middleware('client')->delete('/module', [ClientModulesController::class, 
 Route::middleware('client')->post('/bug', [ModuleBugs::class, 'postBug']);
 Route::middleware('client')->get('/bug', [ModuleBugs::class, 'getBugList']);
 Route::middleware('client')->get('/bug-details', [ModuleBugs::class, 'getBugdetails']);
+Route::middleware('client')->get('/bug-global-search', [ModuleBugs::class, 'getGlobalSearch']);
 
 
 // Environment.

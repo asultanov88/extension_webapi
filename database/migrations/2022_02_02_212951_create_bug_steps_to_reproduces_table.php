@@ -15,7 +15,7 @@ class CreateBugStepsToReproducesTable extends Migration
     {
         Schema::create('bug_steps_to_reproduce', function (Blueprint $table) {
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
-            $table->string('stepsToReproduce');
+            $table->longtext('stepsToReproduce');
             $table->timestamps();
         });
     }

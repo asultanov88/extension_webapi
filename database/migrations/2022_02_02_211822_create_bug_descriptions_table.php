@@ -15,7 +15,7 @@ class CreateBugDescriptionsTable extends Migration
     {
         Schema::create('bug_description', function (Blueprint $table) {
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
-            $table->string('description');
+            $table->longtext('description');
             $table->timestamps();
         });
     }

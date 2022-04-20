@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBugExpectedResultsTable extends Migration
+class CreateBugGlobalSearchesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateBugExpectedResultsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bug_expected_result', function (Blueprint $table) {
+        Schema::create('bug_global_searches', function (Blueprint $table) {
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
-            $table->longtext('expectedResult');
+            $table->longtext('searchKeyword')->index();
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.
@@ -28,6 +27,6 @@ class CreateBugExpectedResultsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bug_expected_results');
+        Schema::dropIfExists('bug_global_searches');
     }
 }

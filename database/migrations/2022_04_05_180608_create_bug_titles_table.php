@@ -15,7 +15,7 @@ class CreateBugTitlesTable extends Migration
     {
         Schema::create('bug_titles', function (Blueprint $table) {
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
-            $table->string('title');
+            $table->longtext('title');
             $table->timestamps();
         });
     }

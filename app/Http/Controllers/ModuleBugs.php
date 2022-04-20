@@ -11,16 +11,31 @@ use App\Models\BugScreenshot;
 use App\Models\BugTitle;
 use App\Models\LkBugStatus;
 use App\Models\BugEnvironment;
+use App\Models\Modules;
+use App\Models\Projects;
+use App\Models\BugGlobalSearch;
 use App\Http\Custom\SaveFileHelper;
 use App\Http\Controllers\BugAttachmentsController;
 use Carbon\Carbon;
-use DB;
 
 
 use Illuminate\Http\Request;
 
 class ModuleBugs extends Controller
 {
+
+    /**
+     * Search for a bug by query keyword.
+     */
+    public function getGlobalSearch(Request $request){
+
+        $request->validate([
+            'query'=>'required|string|min:2'
+        ]);
+
+        return 'global search works';
+
+    }
 
     /**
      * Get bug details by bugId.
@@ -219,6 +234,21 @@ class ModuleBugs extends Controller
                     BugAttachmentsController::makeAttachmentPermanent($attachmentUuid, $request['uuid'], $request['clientId'], $bug);
                 }
             }
+
+            // saving the gloab search keyword.
+            $project = Modules::where('moduleId','=',$request['moduleId'])
+                              ->join('projects','projects.id','=','modules.projectId')
+                              ->first(
+                                  array(                                      
+                                    'projects.id',
+                                    'projects.projectKey',                                      
+                                  )
+                                );
+
+            $globalSearch = new BugGlobalSearch();
+            $globalSearch['bugId'] = $bug['bugId'];
+            $globalSearch['searchKeyword'] = strtolower($project['projectKey']).'-'.$bug['bugId'].' '.strtolower($request['title']);
+            $globalSearch->save();
 
             // Load all relationships before return.
             $bug->title;

@@ -16,7 +16,7 @@ class CreateEnvironmentsTable extends Migration
         Schema::create('environments', function (Blueprint $table) {
             $table->id('environmentId');
             $table->integer('clientId')->index();
-            $table->string('name');
+            $table->longtext('name');
             $table->timestamps();
         });
     }

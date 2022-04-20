@@ -16,7 +16,7 @@ class CreateModulesTable extends Migration
         Schema::create('modules', function (Blueprint $table) {
             $table->id('moduleId')->index();
             $table->string('name');
-            $table->string('description');
+            $table->longtext('description');
             $table->foreignId('projectId')->references('id')->on('Projects');
             $table->timestamps();
         });

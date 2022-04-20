@@ -16,7 +16,7 @@ class CreateBugScreenshotsTable extends Migration
         Schema::create('bug_screenshots', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
-            $table->string('screenshotPath');
+            $table->longtext('screenshotPath');
             $table->timestamps();
         });
     }

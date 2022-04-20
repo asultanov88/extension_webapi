@@ -15,7 +15,7 @@ class CreateBugXpathsTable extends Migration
     {
         Schema::create('bug_xpath', function (Blueprint $table) {
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
-            $table->string('xpath');
+            $table->longtext('xpath');
             $table->timestamps();
         });
     }
