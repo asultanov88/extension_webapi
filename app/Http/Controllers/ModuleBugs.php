@@ -14,12 +14,63 @@ use App\Models\BugEnvironment;
 use App\Http\Custom\SaveFileHelper;
 use App\Http\Controllers\BugAttachmentsController;
 use Carbon\Carbon;
+use DB;
 
 
 use Illuminate\Http\Request;
 
 class ModuleBugs extends Controller
 {
+
+    /**
+     * Get bug details by bugId.
+     */
+    public function getBugdetails(Request $request){
+        $request->validate([
+            'bugId'=>'required|integer|exists:module_bugs,bugId',
+        ]);
+        
+        try {
+
+            $bug = ModuleBug::where('bugId','=',$request['bugId'])
+                            ->join('modules','modules.moduleId','=','module_bugs.moduleId')
+                            ->join('projects','projects.id','=','modules.projectId')    
+                            ->where('projects.clientId','=',$request['clientId'])
+                            ->first(
+                                array(
+                                'module_bugs.bugId',
+                                'module_bugs.moduleId',
+                                'module_bugs.lkBugStatusId',
+                                )
+                            );
+            
+            // Construct new object to represent bug.
+            $result = [
+                'bugId' => $bug['bugId'],
+                'moduleId' => $bug['moduleId'],
+                'lkBugStatusId' => $bug['lkBugStatusId'],
+                'lkBugStatus' => LkBugStatus::where('id','=',$bug['lkBugStatusId'])->first()->description,
+                'bugEnvironment' => $bug['bugEnvironment']['environment']['name'],
+                'bugEnvironmentId' => $bug['bugEnvironment']['environmentId'],
+                'title' => $bug['title']['title'],
+                'description' => $bug['description']['description'],
+                'stepsToReproduce' => $bug['stepsToReproduce']['stepsToReproduce'],
+                'expectedResult' => $bug['expectedResult']['expectedResult'],
+                'actualResult' => $bug['actualResult']['actualResults'],
+                'xpath' => $bug['xpath']['xpath'],
+                'screenshots' => $this->getPath($bug->screenshot, 'screenshotPath'),
+                'attachments' => $this->getPath($bug->attachment, 'attachmentPath'),
+            ];
+            
+            return response()->
+            json(['result' => $result], 200);
+            
+        } catch (Exception $e) {
+            return response()->
+            json($e, 500);
+        }
+    }
+
     /**
      * Get bug list by parameters.
      */
@@ -178,5 +229,20 @@ class ModuleBugs extends Controller
             return response()->
             json($e, 500);
         }
+    }
+    
+    /**
+     * Extracts screenshot path and returns array of public path.
+     */
+    private function getPath($pathArr, $key){
+
+        $publicPathArr = [];
+
+        foreach ($pathArr as $path) {
+            $publicPath = SaveFileHelper::getPublicPath($path[$key]);
+            array_push($publicPathArr, $publicPath);
+        }
+
+        return $publicPathArr;
     }
 }
