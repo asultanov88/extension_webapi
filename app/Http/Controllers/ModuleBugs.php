@@ -132,6 +132,7 @@ class ModuleBugs extends Controller
                             ->where('projects.clientId','=',$request['clientId'])
                             ->whereDate('module_bugs.created_at','>=',$fromDate)
                             ->whereDate('module_bugs.created_at','<=',$toDate)
+                            ->orderBy('module_bugs.bugId','DESC')
                             ->get(
                                 array(
                                     'projects.projectKey',
