@@ -40,7 +40,7 @@ class SaveFileHelper
      */
     public function saveBlobAsFile($request, $category, $fileExtension, $bug){
 
-        $uuidAsFileName = Str::uuid()->toString();;
+        $uuidAsFileName = Str::uuid()->toString();
         $directoryPath = 'media-repository/'.$request['uuid'].'/'.$category.'/'.$bug['bugId'];
         $filePath = $directoryPath.'/'.$uuidAsFileName.'.'.$fileExtension;
         $fullPath = getcwd().'/'.$filePath;
@@ -50,6 +50,22 @@ class SaveFileHelper
         file_put_contents($fullPath, $decodedImage);
 
         // Returns file's saved path.
+        return $filePath;
+    }
+
+    /**
+     * Saves screenshot blob as temporary png file.
+     * @param $blob screenshot blob.
+     */
+    public function saveBlobForPdf($blob){
+        $uuidAsFileName = Str::uuid()->toString();
+        $directoryPath = 'media-repository/PDF/screenshots';
+        $filePath = $directoryPath.'/'.$uuidAsFileName.'.png';
+        $fullPath = getcwd().'/'.$filePath;
+        $decodedImage = SaveFileHelper::decodeBlob($blob);  
+
+        SaveFileHelper::createMediaDirectory($directoryPath);
+        file_put_contents($fullPath, $decodedImage);
         return $filePath;
     }
 

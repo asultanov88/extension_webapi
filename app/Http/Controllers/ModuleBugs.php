@@ -33,8 +33,15 @@ class ModuleBugs extends Controller
             'query'=>'required|string|min:2'
         ]);
 
-        return 'global search works';
+        $searchResult = BugGlobalSearch::where('searchKeyword','like', '%'.$request['query'].'%')->get()->toArray();
 
+        $bugIds = [];
+
+        foreach($searchResult as $result){
+            array_push($bugIds, $result['bugId']);
+        }
+
+        return $bugIds;
     }
 
     /**

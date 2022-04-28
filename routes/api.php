@@ -7,6 +7,7 @@ use App\Http\Controllers\ClientModulesController;
 use App\Http\Controllers\ModuleBugs;
 use App\Http\Controllers\BugAttachmentsController;
 use App\Http\Controllers\ClientEnvironmentsController;
+use App\Http\Controllers\GeneratePdf;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,10 +52,12 @@ Route::middleware('client')->get('/environment', [ClientEnvironmentsController::
 Route::middleware('client')->delete('/environment', [ClientEnvironmentsController::class, 'deleteEnvironment']);
 Route::middleware('client')->patch('/environment', [ClientEnvironmentsController::class, 'patchEnvironment']);
 
-//Attachment.
+// Attachment.
 Route::middleware('client')->post('/attachment', [BugAttachmentsController::class, 'postAttachment']);
 Route::middleware('client')->delete('/temp_attachment', [BugAttachmentsController::class, 'deleteTempAttachment']);
 
+// Generate PDF.
+Route::get('/generate_pdf', [GeneratePdf::class, 'generatePdf']);
 
 
 
