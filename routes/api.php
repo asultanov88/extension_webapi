@@ -57,7 +57,7 @@ Route::middleware('client')->post('/attachment', [BugAttachmentsController::clas
 Route::middleware('client')->delete('/temp_attachment', [BugAttachmentsController::class, 'deleteTempAttachment']);
 
 // Generate PDF.
-Route::get('/generate_pdf', [GeneratePdf::class, 'generatePdf']);
+Route::post('/generate_pdf', [GeneratePdf::class, 'generatePdf']);
 
 
 
