@@ -30,13 +30,8 @@ class BugAttachmentsController extends Controller
                                     ->where('projects.clientId','=',$request['clientId'])
                                     ->delete();
 
-      if($bugAttachment){
-        return response()->
-        json(['result' => 'success'], 200); 
-      }else{
-        return response()->
-        json(['result' => 'unable to delete'], 500); 
-      }
+      return $bugAttachment ? response()->json(['result' => 'success'], 200)
+                            : response()->json(['result' => 'unable to delete'], 500); 
       
     } catch (Exception $e) {
       return response()->json($e, 500);    
