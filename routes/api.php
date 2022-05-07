@@ -58,6 +58,7 @@ Route::middleware('client')->patch('/environment', [ClientEnvironmentsController
 // Attachment.
 Route::middleware('client')->post('/attachment', [BugAttachmentsController::class, 'postAttachment']);
 Route::middleware('client')->delete('/temp_attachment', [BugAttachmentsController::class, 'deleteTempAttachment']);
+Route::middleware('client')->delete('/attachment', [BugAttachmentsController::class, 'deleteBugAttachment']);
 
 // Generate PDF.
 Route::post('/generate_pdf', [GeneratePdf::class, 'generatePdf']);

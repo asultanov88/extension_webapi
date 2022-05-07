@@ -11,6 +11,40 @@ use App\Models\TempAttachment;
 class BugAttachmentsController extends Controller
 {
   /**
+   * Deletes permanenet bug attachment by uuid.
+   */
+  public function deleteBugAttachment(Request $request){
+
+    $request->validate([
+      'bugId'=>'required|integer|exists:module_bugs,bugId',
+      'attachment_uuid'=>'required|exists:bug_attachments,uuid'
+    ]);
+
+    try {
+
+      $bugAttachment = BugAttachment::join('module_bugs','module_bugs.bugId','=','bug_attachments.bugId')
+                                    ->join('modules','modules.moduleId','=','module_bugs.moduleId')
+                                    ->join('projects','projects.id','=','modules.projectId')  
+                                    ->where('bug_attachments.bugId','=',$request['bugId'])
+                                    ->where('bug_attachments.uuid','=',$request['attachment_uuid'])
+                                    ->where('projects.clientId','=',$request['clientId'])
+                                    ->delete();
+
+      if($bugAttachment){
+        return response()->
+        json(['result' => 'success'], 200); 
+      }else{
+        return response()->
+        json(['result' => 'unable to delete'], 500); 
+      }
+      
+    } catch (Exception $e) {
+      return response()->json($e, 500);    
+    }
+  }
+
+
+  /**
    * Deletes temporary attachment by uuid.
    */
   public function deleteTempAttachment(Request $request){
@@ -100,6 +134,7 @@ class BugAttachmentsController extends Controller
             $attachmentPath = $saveStatus['filePath'];
             $attachment = new BugAttachment();
             $attachment['attachmentPath'] = $attachmentPath;
+            $attachment['uuid'] = $temp_attachment['uuid'];
             $bug->attachment()->save($attachment);
 
             // Mark temp file as permanent in 'temp_attachments' table.

@@ -15,6 +15,7 @@ class CreateBugAttachmentsTable extends Migration
     {
         Schema::create('bug_attachments', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->index();
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
             $table->longtext('attachmentPath');
             $table->timestamps();

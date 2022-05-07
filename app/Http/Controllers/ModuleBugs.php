@@ -393,7 +393,12 @@ class ModuleBugs extends Controller
 
         foreach ($pathArr as $path) {
             $publicPath = SaveFileHelper::getPublicPath($path[$key]);
-            array_push($publicPathArr, $publicPath);
+            if(str_contains($key, 'attachment')){
+                // uuid of an attachment is needed only for attachments to be able to delete.
+                array_push($publicPathArr, ['path'=>$publicPath, 'uuid'=>$path->uuid]);
+            }elseif(str_contains($key, 'screenshot')){
+                array_push($publicPathArr, $publicPath);
+            }            
         }
 
         return $publicPathArr;

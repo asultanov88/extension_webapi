@@ -14,6 +14,7 @@ class BugAttachment extends Model
 
     protected $fillable = [
         'id',
+        'uuid',
         'bugId',
         'attachmentPath',
     ];
