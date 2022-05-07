@@ -234,6 +234,7 @@ class ModuleBugs extends Controller
             $toDate = Carbon::parse($request['toDate'])->addDay();
           
             $activeBugstatus = LkBugStatus::where('description','=','active')->first()->lkBugStatusId;
+            $inProgressBugStatus = LkBugStatus::where('description','=','in-progress')->first()->lkBugStatusId;
 
             $bugs = ModuleBug::join('bug_titles','bug_titles.bugId','=','module_bugs.bugId')
                             ->join('bug_xpath','bug_xpath.bugId','=','module_bugs.bugId')
@@ -242,8 +243,12 @@ class ModuleBugs extends Controller
                             ->join('modules','modules.moduleId','=','module_bugs.moduleId')
                             ->join('projects','projects.id','=','modules.projectId')       
                             ->where('bug_environments.environmentId','=',$request['environmentId'])
-                            ->where('modules.moduleId','=',$request['moduleId'])
-                            ->where('module_bugs.lkBugStatusId','=',$activeBugstatus)
+                            ->where('modules.moduleId','=',$request['moduleId'])                           
+                            ->where(function($query) use ($activeBugstatus, $inProgressBugStatus)
+                                    {     
+                                       $query->where('module_bugs.lkBugStatusId','=',$activeBugstatus)
+                                             ->orWhere('module_bugs.lkBugStatusId','=',$inProgressBugStatus); 
+                                    })
                             ->where('projects.clientId','=',$request['clientId'])
                             ->whereDate('module_bugs.created_at','>=',$fromDate)
                             ->whereDate('module_bugs.created_at','<=',$toDate)

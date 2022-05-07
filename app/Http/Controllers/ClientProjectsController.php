@@ -6,7 +6,7 @@ use App\Models\LkProjectStatus;
 use Illuminate\Http\Request;
 use App\Models\Projects;
 use App\Models\Modules;
-
+use App\Http\Custom\CustomValidators;
 
 class ClientProjectsController extends Controller
 {
@@ -19,6 +19,12 @@ class ClientProjectsController extends Controller
             'id'=>'required|integer|gt:0|exists:projects,id',
             'lkProjectStatusId'=>'required|integer|between:1,2'
         ]);
+
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateProjectId($request)){
+            return response()->
+            json(['error'=>'invalid project id'], 500); 
+        }
 
         $activeStatus = LkProjectStatus::where('description','=','active')->first()->id;
         $inactiveStatus = LkProjectStatus::where('description','=','inactive')->first()->id;
@@ -52,6 +58,12 @@ class ClientProjectsController extends Controller
         $request->validate([
             'id'=>'required|integer|gt:0|exists:projects,id'
         ]);
+
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateProjectId($request)){
+            return response()->
+            json(['error'=>'invalid project id'], 500); 
+        }
 
             try {
                 
@@ -90,10 +102,17 @@ class ClientProjectsController extends Controller
     public function patchProject(Request $request){
 
         $request->validate([
-                'id'=>'required|integer|gt:0|exists:projects,id',
-                'projectKey'=>'required|max:10',
-                'saveToJira'=>'required|integer|between:0,1',            ]
+                    'id'=>'required|integer|gt:0|exists:projects,id',
+                    'projectKey'=>'required|max:10',
+                    'saveToJira'=>'required|integer|between:0,1', 
+                ]
         );
+
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateProjectId($request)){
+            return response()->
+            json(['error'=>'invalid project id'], 500); 
+        }
 
         if($request['saveToJira'] == 1){
             $request->validate([
@@ -104,8 +123,7 @@ class ClientProjectsController extends Controller
         // Check if duplicate project exists before update.
         $duplicateExists = Projects::where('clientId','=',$request['clientId'])
                                     ->where(function($query) use ($request)
-                                    {
-                                        
+                                    {                                        
                                         // Check for jiraId match only if saveToJira is 1 (true).
                                         $request['saveToJira'] == 1
                                         ? $query->whereRaw('LOWER(projectKey) = LOWER(?)', ["{$request['projectKey']}"])
