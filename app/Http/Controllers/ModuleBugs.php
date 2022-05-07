@@ -24,6 +24,62 @@ use Illuminate\Http\Request;
 class ModuleBugs extends Controller
 {
     /**
+     * Path bug by Id 
+     */
+    public function patchBug(Request $request){
+        $request->validate([
+            'bugId'=>'required|integer|exists:module_bugs,bugId',
+            'moduleId'=>'required|integer|exists:modules,moduleId',
+            'title'=>'required|string|max:100|min:1',
+            'actualResult'=>'required|string|max:1000|min:1',
+            'description'=>'required|string|max:1000|min:1',
+            'stepsToReproduce'=>'required|string|max:1000|min:1',
+            'expectedResult'=>'required|string|max:1000|min:1',
+            'xpath'=>'required|string|max:500|min:1',
+            'environmentId'=>'required|integer|exists:environments,environmentId',
+            'screenshot'=>'required',
+        ]);
+
+        $bug = ModuleBug::join('modules','modules.moduleId','=','module_bugs.moduleId')
+                        ->join('projects','projects.id','=','modules.projectId')  
+                        ->where('module_bugs.bugId','=',$request['bugId'])
+                        ->where('projects.clientId','=',$request['clientId'])
+                        ->first();
+                        
+        return $bug;
+
+    }  
+    
+    /**
+     * Update bug status.
+     */
+    public function patchBugStatus(Request $request){
+        try {
+            $request->validate([
+                'bugId'=>'required|integer|exists:module_bugs,bugId',
+                'lkBugStatusId'=>'required|integer|exists:lk_bug_statuses,lkBugStatusId',
+            ]);
+    
+            $bug=ModuleBug::join('modules','modules.moduleId','=','module_bugs.moduleId')
+                            ->join('projects','projects.id','=','modules.projectId')  
+                            ->where('module_bugs.bugId','=',$request['bugId'])
+                            ->where('projects.clientId','=',$request['clientId'])
+                            ->first();
+    
+            $bug->update([
+                'lkBugStatusId'=>$request['lkBugStatusId']
+            ]);
+    
+            return response()->
+            json(['result' => 'success'], 200);
+
+        } catch (Exception $e) {
+            return response()->
+            json($e, 500);
+        }
+    }
+
+    /**
      * Get the list of bug statuses.
      */
     public function getBugStatusList(){

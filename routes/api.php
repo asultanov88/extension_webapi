@@ -45,6 +45,8 @@ Route::middleware('client')->get('/bug', [ModuleBugs::class, 'getBugList']);
 Route::middleware('client')->get('/bug-details', [ModuleBugs::class, 'getBugdetails']);
 Route::middleware('client')->get('/bug-global-search', [ModuleBugs::class, 'getGlobalSearch']);
 Route::middleware('client')->get('/bug-status-list', [ModuleBugs::class, 'getBugStatusList']);
+Route::middleware('client')->patch('/bug', [ModuleBugs::class, 'patchBug']);
+Route::middleware('client')->patch('/bug-status', [ModuleBugs::class, 'patchBugStatus']);
 
 
 // Environment.
