@@ -33,15 +33,47 @@ class ModuleBugs extends Controller
             'query'=>'required|string|min:2'
         ]);
 
-        $searchResult = BugGlobalSearch::where('searchKeyword','like', '%'.$request['query'].'%')->get()->toArray();
+        try {
+            
+            $bugs = BugGlobalSearch::where('searchKeyword','like', '%'.$request['query'].'%')
+                                    ->join('module_bugs','module_bugs.bugId','=','bug_global_searches.bugId')
+                                    ->join('bug_titles','bug_titles.bugId','=','module_bugs.bugId')
+                                    ->join('bug_xpath','bug_xpath.bugId','=','module_bugs.bugId')
+                                    ->join('bug_screenshots','bug_screenshots.bugId','=','module_bugs.bugId')                                  
+                                    ->join('modules','modules.moduleId','=','module_bugs.moduleId')
+                                    ->join('projects','projects.id','=','modules.projectId')  
+                                    ->where('projects.clientId','=',$request['clientId'])
+                                    ->get(
+                                        array(
+                                            'projects.projectKey',
+                                            'module_bugs.bugId',
+                                            'bug_titles.title',
+                                            'bug_xpath.xpath',
+                                            'bug_screenshots.screenshotPath'
+                                        )
+                                    )->toArray();
 
-        $bugIds = [];
+            $result = [];
 
-        foreach($searchResult as $result){
-            array_push($bugIds, $result['bugId']);
+            foreach($bugs as $bug){
+                // Setting bug index.
+                $bug['bugIndex'] = $bug['projectKey'].'-'.$bug['bugId'];
+                // Upper casing the first letter of the bug title.
+                $bug['title'] = ucfirst($bug['title']);
+                // Removing unsused projectKey.
+                unset($bug['projectKey']);
+                // Modifying the screenshot path for public access.
+                $bug['screenshotPath'] = SaveFileHelper::getPublicPath($bug['screenshotPath']);
+                array_push($result, $bug);
+            }
+
+            return response()->
+            json(['result' => $result], 200); 
+
+        } catch (Exception $e) {
+            return response()->
+            json($e, 500);
         }
-
-        return $bugIds;
     }
 
     /**
