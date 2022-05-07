@@ -23,6 +23,22 @@ use Illuminate\Http\Request;
 
 class ModuleBugs extends Controller
 {
+    /**
+     * Get the list of bug statuses.
+     */
+    public function getBugStatusList(){
+        try {
+
+            $bugStatuses = LkBugStatus::all(array('lkBugStatusId','description'));
+            
+            return response()->
+            json(['result' => $bugStatuses], 200); 
+
+        } catch (Exception $e) {
+            return response()->
+            json($e, 500);
+        }
+    }
 
     /**
      * Search for a bug by query keyword.
@@ -112,7 +128,7 @@ class ModuleBugs extends Controller
                 'moduleId' => $bug['moduleId'],
                 'moduleName' => $bug['moduleName'],
                 'lkBugStatusId' => $bug['lkBugStatusId'],
-                'lkBugStatus' => LkBugStatus::where('id','=',$bug['lkBugStatusId'])->first()->description,
+                'lkBugStatus' => LkBugStatus::where('lkBugStatusId','=',$bug['lkBugStatusId'])->first()->description,
                 'bugEnvironment' => $bug['bugEnvironment']['environment']['name'],
                 'bugEnvironmentId' => $bug['bugEnvironment']['environmentId'],
                 'title' => $bug['title']['title'],
@@ -157,7 +173,7 @@ class ModuleBugs extends Controller
             $fromDate = Carbon::parse($request['fromDate'])->subDay();
             $toDate = Carbon::parse($request['toDate'])->addDay();
           
-            $activeBugstatus = LkBugStatus::where('description','=','active')->first()->id;
+            $activeBugstatus = LkBugStatus::where('description','=','active')->first()->lkBugStatusId;
 
             $bugs = ModuleBug::join('bug_titles','bug_titles.bugId','=','module_bugs.bugId')
                             ->join('bug_xpath','bug_xpath.bugId','=','module_bugs.bugId')
@@ -226,7 +242,7 @@ class ModuleBugs extends Controller
 
         try {
 
-            $activeBugstatus = LkBugStatus::where('description','=','active')->first()->id;
+            $activeBugstatus = LkBugStatus::where('description','=','active')->first()->lkBugStatusId;
             
             $bug = new ModuleBug();
             $bug['moduleId'] = $request['moduleId'];

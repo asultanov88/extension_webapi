@@ -14,7 +14,7 @@ class CreateLkBugStatusesTable extends Migration
     public function up()
     {
         Schema::create('lk_bug_statuses', function (Blueprint $table) {
-            $table->id();
+            $table->id('lkBugStatusId');
             $table->string('description');
             $table->timestamps();
         });

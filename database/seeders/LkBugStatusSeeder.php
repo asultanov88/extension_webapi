@@ -24,25 +24,25 @@ class LkBugStatusSeeder extends Seeder
 
         $bugStatus = [
             [
-                'id'=>1,
+                'lkBugStatusId'=>1,
                 'description'=>'active',
                 'created_at'=>Carbon::now(),
                 'updated_at'=>Carbon::now(),
             ],
             [
-                'id'=>2,
+                'lkBugStatusId'=>2,
                 'description'=>'in-progress',
                 'created_at'=>Carbon::now(),
                 'updated_at'=>Carbon::now(),
             ],
             [
-                'id'=>3,
+                'lkBugStatusId'=>3,
                 'description'=>'completed',
                 'created_at'=>Carbon::now(),
                 'updated_at'=>Carbon::now(),
             ],
             [
-                'id'=>4,
+                'lkBugStatusId'=>4,
                 'description'=>'cancelled',
                 'created_at'=>Carbon::now(),
                 'updated_at'=>Carbon::now(),

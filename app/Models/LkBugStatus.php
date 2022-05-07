@@ -9,8 +9,10 @@ class LkBugStatus extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'lkBugStatusId';
+
     protected $fillable = [
-        'id',
+        'lkBugStatusId',
         'description',
     ];
 
