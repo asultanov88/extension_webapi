@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Modules;
-
+use App\Http\Custom\CustomValidators;
 
 class ClientModulesController extends Controller
 {
@@ -14,12 +14,18 @@ class ClientModulesController extends Controller
      */
     public function deleteModule(Request $request){
 
-        try {
+        $request->validate([
+            'moduleId'=>'required|integer|exists:modules,moduleId',
+        ]);
 
-            $request->validate([
-                'moduleId'=>'required|integer|exists:modules,moduleId',
-            ]);
-    
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateModuleId($request)){
+            return response()->
+            json(['error'=>'invalid module id'], 500); 
+        }
+
+        try {
+                
             $module = Modules::with('bugs')
             ->where('moduleId','=',$request['moduleId'])  
             ->join('projects','projects.id','=','modules.projectId')
@@ -58,6 +64,12 @@ class ClientModulesController extends Controller
             'name'=>'required|max:50',
             'description'=>'required|max:255',
         ]);
+        
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateModuleId($request)){
+            return response()->
+            json(['error'=>'invalid module id'], 500); 
+        }
 
         try {
 
@@ -122,6 +134,12 @@ class ClientModulesController extends Controller
             'query'=> 'required|max:50',
         ]);
 
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateProjectId($request)){
+            return response()->
+            json(['error'=>'invalid project id'], 500); 
+        }
+
         try {
 
             $modules = Modules::with('bugs')
@@ -164,6 +182,12 @@ class ClientModulesController extends Controller
             'name'=>'required|max:50',
             'description'=>'required|max:255',
         ]);
+
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateProjectId($request)){
+            return response()->
+            json(['error'=>'invalid project id'], 500); 
+        }
 
         try {
             

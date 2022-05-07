@@ -17,8 +17,7 @@ use App\Models\BugGlobalSearch;
 use App\Http\Custom\SaveFileHelper;
 use App\Http\Controllers\BugAttachmentsController;
 use Carbon\Carbon;
-
-
+use App\Http\Custom\CustomValidators;
 use Illuminate\Http\Request;
 
 class ModuleBugs extends Controller
@@ -40,6 +39,12 @@ class ModuleBugs extends Controller
             'screenshot'=>'required',
         ]);
 
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateBugId($request)){
+            return response()->
+            json(['error'=>'invalid bug id'], 500); 
+        }
+
         $bug = ModuleBug::join('modules','modules.moduleId','=','module_bugs.moduleId')
                         ->join('projects','projects.id','=','modules.projectId')  
                         ->where('module_bugs.bugId','=',$request['bugId'])
@@ -59,6 +64,12 @@ class ModuleBugs extends Controller
                 'bugId'=>'required|integer|exists:module_bugs,bugId',
                 'lkBugStatusId'=>'required|integer|exists:lk_bug_statuses,lkBugStatusId',
             ]);
+
+            // Validates if the requested project ID belongs to the user.
+            if(!CustomValidators::validateBugId($request)){
+                return response()->
+                json(['error'=>'invalid bug id'], 500); 
+            }
     
             $bug=ModuleBug::join('modules','modules.moduleId','=','module_bugs.moduleId')
                             ->join('projects','projects.id','=','modules.projectId')  
@@ -223,6 +234,12 @@ class ModuleBugs extends Controller
             'toDate'=>'required|string',
         ]);
 
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateModuleId($request)){
+            return response()->
+            json(['error'=>'invalid module id'], 500); 
+        }
+
         try {
 
             /**
@@ -304,6 +321,12 @@ class ModuleBugs extends Controller
             'environmentId'=>'required|integer|exists:environments,environmentId',
             'screenshot'=>'required',
         ]);
+
+        // Validates if the requested project ID belongs to the user.
+        if(!CustomValidators::validateModuleId($request)){
+            return response()->
+            json(['error'=>'invalid module id'], 500); 
+        }
 
         try {
 

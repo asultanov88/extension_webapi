@@ -122,6 +122,7 @@ class ClientProjectsController extends Controller
 
         // Check if duplicate project exists before update.
         $duplicateExists = Projects::where('clientId','=',$request['clientId'])
+                                    ->where('id','!=',$request['id'])
                                     ->where(function($query) use ($request)
                                     {                                        
                                         // Check for jiraId match only if saveToJira is 1 (true).
