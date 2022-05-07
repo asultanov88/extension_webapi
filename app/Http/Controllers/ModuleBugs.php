@@ -176,31 +176,35 @@ class ModuleBugs extends Controller
                             );
             
             // Construct new object to represent bug.
-            $result = [
-                'bugId' => $bug['bugId'], 
-                'bugIndex' => strtoupper($bug['projectKey']).'-'.$bug['bugId'],
-                'projectId' => $bug['projectId'],
-                'projectName' => $bug['projectKey'],               
-                'moduleId' => $bug['moduleId'],
-                'moduleName' => $bug['moduleName'],
-                'lkBugStatusId' => $bug['lkBugStatusId'],
-                'lkBugStatus' => LkBugStatus::where('lkBugStatusId','=',$bug['lkBugStatusId'])->first()->description,
-                'bugEnvironment' => $bug['bugEnvironment']['environment']['name'],
-                'bugEnvironmentId' => $bug['bugEnvironment']['environmentId'],
-                'title' => $bug['title']['title'],
-                'description' => $bug['description']['description'],
-                'stepsToReproduce' => $bug['stepsToReproduce']['stepsToReproduce'],
-                'expectedResult' => $bug['expectedResult']['expectedResult'],
-                'actualResult' => $bug['actualResult']['actualResults'],
-                'xpath' => $bug['xpath']['xpath'],
-                'screenshots' => $this->getPath($bug->screenshot, 'screenshotPath'),
-                'attachments' => $this->getPath($bug->attachment, 'attachmentPath'),
-                'createdAt' => $bug['created_at'],
-                'updatedAt' => $bug['updated_at'],
-            ];
+            $result = null;
+
+            if($bug){
+                $result = [
+                    'bugId' => $bug['bugId'], 
+                    'bugIndex' => strtoupper($bug['projectKey']).'-'.$bug['bugId'],
+                    'projectId' => $bug['projectId'],
+                    'projectName' => $bug['projectKey'],               
+                    'moduleId' => $bug['moduleId'],
+                    'moduleName' => $bug['moduleName'],
+                    'lkBugStatusId' => $bug['lkBugStatusId'],
+                    'lkBugStatus' => LkBugStatus::where('lkBugStatusId','=',$bug['lkBugStatusId'])->first()->description,
+                    'bugEnvironment' => $bug['bugEnvironment']['environment']['name'],
+                    'bugEnvironmentId' => $bug['bugEnvironment']['environmentId'],
+                    'title' => $bug['title']['title'],
+                    'description' => $bug['description']['description'],
+                    'stepsToReproduce' => $bug['stepsToReproduce']['stepsToReproduce'],
+                    'expectedResult' => $bug['expectedResult']['expectedResult'],
+                    'actualResult' => $bug['actualResult']['actualResults'],
+                    'xpath' => $bug['xpath']['xpath'],
+                    'screenshots' => $this->getPath($bug->screenshot, 'screenshotPath'),
+                    'attachments' => $this->getPath($bug->attachment, 'attachmentPath'),
+                    'createdAt' => $bug['created_at'],
+                    'updatedAt' => $bug['updated_at'],
+                ];
+            }
             
-            return response()->
-            json(['result' => $result], 200);
+            return $result ? response()->json(['result' => $result], 200)
+                           : response()->json(['result' => 'unable to get bug details'], 500);
             
         } catch (Exception $e) {
             return response()->
