@@ -23,7 +23,7 @@ use Illuminate\Http\Request;
 class ModuleBugs extends Controller
 {
     /**
-     * Path bug by Id 
+     * Patch bug by Id 
      */
     public function patchBug(Request $request){
         $request->validate([
@@ -114,8 +114,8 @@ class ModuleBugs extends Controller
 
         $request->validate([
             'query'=>'required|string|min:2',
-            'includeCanceled'=>'required|boolean',
-            'includeCompleted'=>'required|boolean',
+            'includeCanceled'=>'required|integer|min:0|max:1',
+            'includeCompleted'=>'required|integer|min:0|max:1',
         ]);
 
         try {
@@ -138,11 +138,11 @@ class ModuleBugs extends Controller
                                        $query->where('module_bugs.lkBugStatusId','=',$activeBugstatus)
                                              ->orWhere('module_bugs.lkBugStatusId','=',$inProgressBugStatus); 
                                     })                           
-                                    ->when($request['includeCanceled'], function($query) use ($request, $cancelledBugStatus)
+                                    ->when($request['includeCanceled'] == 1, function($query) use ($request, $cancelledBugStatus)
                                         {
                                             return $query->orWhere('module_bugs.lkBugStatusId','=',$cancelledBugStatus);
                                         })
-                                    ->when($request['includeCompleted'], function($query) use ($request, $completedBugStatus)
+                                    ->when($request['includeCompleted'] == 1, function($query) use ($request, $completedBugStatus)
                                         {
                                             return $query->orWhere('module_bugs.lkBugStatusId','=',$completedBugStatus);
                                         })
@@ -252,8 +252,8 @@ class ModuleBugs extends Controller
             'environmentId'=>'required|integer|exists:environments,environmentId',
             'fromDate'=>'required|string',
             'toDate'=>'required|string',
-            'includeCanceled'=>'required|boolean',
-            'includeCompleted'=>'required|boolean',
+            'includeCanceled'=>'required|integer|min:0|max:1',
+            'includeCompleted'=>'required|integer|min:0|max:1',
         ]);
 
         // Validates if the requested project ID belongs to the user.
@@ -290,11 +290,11 @@ class ModuleBugs extends Controller
                                        $query->where('module_bugs.lkBugStatusId','=',$activeBugstatus)
                                              ->orWhere('module_bugs.lkBugStatusId','=',$inProgressBugStatus); 
                                     })                           
-                            ->when($request['includeCanceled'], function($query) use ($request, $cancelledBugStatus)
+                            ->when($request['includeCanceled'] == 1, function($query) use ($request, $cancelledBugStatus)
                                 {
                                     return $query->orWhere('module_bugs.lkBugStatusId','=',$cancelledBugStatus);
                                 })
-                            ->when($request['includeCompleted'], function($query) use ($request, $completedBugStatus)
+                            ->when($request['includeCompleted'] == 1, function($query) use ($request, $completedBugStatus)
                                 {
                                     return $query->orWhere('module_bugs.lkBugStatusId','=',$completedBugStatus);
                                 })
