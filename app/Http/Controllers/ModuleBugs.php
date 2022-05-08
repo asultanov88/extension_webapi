@@ -23,6 +23,47 @@ use Illuminate\Http\Request;
 class ModuleBugs extends Controller
 {
     /**
+     * Patch bug screenshot
+     */
+    public function patchBugScreenshot(Request $request){
+        $request->validate([
+            'bugId'=>'required|integer|exists:module_bugs,bugId',
+            'xpath'=>'required|string|max:500|min:1',
+            'screenshot'=>'required',
+        ]);
+        
+        // Validates if the requested bug ID belongs to the user.
+        if(!CustomValidators::validateBugId($request)){
+            return response()->
+            json(['error'=>CustomValidators::$invalidBugIdError], 500); 
+        }
+
+        try {
+
+            $bug = ModuleBug::where('bugId','=',$request['bugId'])->first();
+
+            // updating bug xpath.
+            $bug->xpath()->update(['xpath'=>$request['xpath']]);
+
+            // updating bug screenshot.
+            $saveFileHelper = new SaveFileHelper();
+            $imagePath = $saveFileHelper->saveBlobAsFile($request, 'screenshots', 'png', $bug);
+            $oldScreenshotPath = $bug->screenshot[0]->screenshotPath;
+            $bug->screenshot()->update(['screenshotPath'=>$imagePath]);
+            $saveFileHelper->deleteFile($oldScreenshotPath);
+
+            return response()->
+            json(['result' => 'success'], 200);
+
+        } catch (Exception $e) {
+            return response()->
+            json($e, 500);
+        }
+
+
+    }
+
+    /**
      * Patch bug by Id 
      */
     public function patchBug(Request $request){
@@ -34,23 +75,22 @@ class ModuleBugs extends Controller
             'description'=>'required|string|max:1000|min:1',
             'stepsToReproduce'=>'required|string|max:1000|min:1',
             'expectedResult'=>'required|string|max:1000|min:1',
-            'xpath'=>'required|string|max:500|min:1',
             'environmentId'=>'required|integer|exists:environments,environmentId',            
         ]);
 
-        // Validates if the requested project ID belongs to the user.
+        // Validates if the requested bug ID belongs to the user.
         if(!CustomValidators::validateBugId($request)){
             return response()->
-            json(['error'=>'invalid bug id'], 500); 
+            json(['error'=>CustomValidators::$invalidBugIdError], 500); 
         }
         
         try {
             
             $bug = ModuleBug::join('modules','modules.moduleId','=','module_bugs.moduleId')
-            ->join('projects','projects.id','=','modules.projectId')  
-            ->where('module_bugs.bugId','=',$request['bugId'])
-            ->where('projects.clientId','=',$request['clientId'])
-            ->first();
+                            ->join('projects','projects.id','=','modules.projectId')  
+                            ->where('module_bugs.bugId','=',$request['bugId'])
+                            ->where('projects.clientId','=',$request['clientId'])
+                            ->first();
 
             $bug->update(['moduleId' => $request['moduleId']]);       
             $bug->bugEnvironment()->update(['environmentId'=>$request['environmentId']]);
@@ -59,10 +99,23 @@ class ModuleBugs extends Controller
             $bug->description()->update(['description'=>$request['description']]);
             $bug->stepsToReproduce()->update(['stepsToReproduce'=>$request['stepsToReproduce']]);
             $bug->expectedResult()->update(['expectedResult'=>$request['expectedResult']]);
-            $bug->xpath()->update(['xpath'=>$request['xpath']]);
             // Updates the timestamps.
             $bug->touch();
+            $bug->fresh();
 
+            // saving the gloabal search keyword.
+            $project = Modules::where('moduleId','=',$bug['moduleId'])
+                              ->join('projects','projects.id','=','modules.projectId')
+                              ->first(
+                                  array(                                      
+                                    'projects.id',
+                                    'projects.projectKey',                                      
+                                  )
+                                );
+
+            $searchKeyword = strtolower($project['projectKey']).'-'.$bug['bugId'].' '.strtolower($bug->title['title']);
+            BugGlobalSearch::where('bugId','=',$bug['bugId'])->update(['searchKeyword' => $searchKeyword]);
+            
             return response()->
             json(['result' => 'success'], 200);
 
@@ -82,10 +135,10 @@ class ModuleBugs extends Controller
                 'lkBugStatusId'=>'required|integer|exists:lk_bug_statuses,lkBugStatusId',
             ]);
 
-            // Validates if the requested project ID belongs to the user.
+            // Validates if the requested bug ID belongs to the user.
             if(!CustomValidators::validateBugId($request)){
                 return response()->
-                json(['error'=>'invalid bug id'], 500); 
+                json(['error'=>CustomValidators::$invalidBugIdError], 500); 
             }
     
             $bug=ModuleBug::join('modules','modules.moduleId','=','module_bugs.moduleId')
@@ -273,10 +326,10 @@ class ModuleBugs extends Controller
             'includeCompleted'=>'required|integer|min:0|max:1',
         ]);
 
-        // Validates if the requested project ID belongs to the user.
+        // Validates if the requested module ID belongs to the user.
         if(!CustomValidators::validateModuleId($request)){
             return response()->
-            json(['error'=>'invalid module id'], 500); 
+            json(['error'=>CustomValidators::$invalidModuleIdError], 500); 
         }
 
         try {
@@ -371,10 +424,10 @@ class ModuleBugs extends Controller
             'screenshot'=>'required',
         ]);
 
-        // Validates if the requested project ID belongs to the user.
+        // Validates if the requested module ID belongs to the user.
         if(!CustomValidators::validateModuleId($request)){
             return response()->
-            json(['error'=>'invalid module id'], 500); 
+            json(['error'=>CustomValidators::$invalidModuleIdError], 500); 
         }
 
         try {

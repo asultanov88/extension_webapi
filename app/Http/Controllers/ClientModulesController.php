@@ -21,7 +21,7 @@ class ClientModulesController extends Controller
         // Validates if the requested project ID belongs to the user.
         if(!CustomValidators::validateModuleId($request)){
             return response()->
-            json(['error'=>'invalid module id'], 500); 
+            json(['error'=>CustomValidators::$invalidModuleIdError], 500); 
         }
 
         try {
@@ -68,7 +68,7 @@ class ClientModulesController extends Controller
         // Validates if the requested project ID belongs to the user.
         if(!CustomValidators::validateModuleId($request)){
             return response()->
-            json(['error'=>'invalid module id'], 500); 
+            json(['error'=>CustomValidators::$invalidModuleIdError], 500); 
         }
 
         try {
@@ -137,7 +137,7 @@ class ClientModulesController extends Controller
         // Validates if the requested project ID belongs to the user.
         if(!CustomValidators::validateProjectId($request)){
             return response()->
-            json(['error'=>'invalid project id'], 500); 
+            json(['error'=>CustomValidators::$invalidProjectIdError], 500); 
         }
 
         try {
@@ -186,7 +186,7 @@ class ClientModulesController extends Controller
         // Validates if the requested project ID belongs to the user.
         if(!CustomValidators::validateProjectId($request)){
             return response()->
-            json(['error'=>'invalid project id'], 500); 
+            json(['error'=>CustomValidators::$invalidProjectIdError], 500); 
         }
 
         try {

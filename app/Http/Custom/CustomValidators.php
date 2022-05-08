@@ -11,6 +11,10 @@ use App\Models\ModuleBug;
 class CustomValidators
 {  
 
+    public $invalidProjectIdError = 'invalid project ID';
+    public $invalidModuleIdError = 'invalid module ID';
+    public $invalidBugIdError = 'invalid bug ID';
+
     /** Validates if project ID belongs to the user. */
     public function validateProjectId($request){
         $project = Projects::where('id','=',$request['id'] ? $request['id'] : $request['projectId'])

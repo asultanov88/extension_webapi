@@ -23,7 +23,7 @@ class ClientProjectsController extends Controller
         // Validates if the requested project ID belongs to the user.
         if(!CustomValidators::validateProjectId($request)){
             return response()->
-            json(['error'=>'invalid project id'], 500); 
+            json(['error'=>CustomValidators::$invalidProjectIdError], 500); 
         }
 
         $activeStatus = LkProjectStatus::where('description','=','active')->first()->id;
@@ -62,7 +62,7 @@ class ClientProjectsController extends Controller
         // Validates if the requested project ID belongs to the user.
         if(!CustomValidators::validateProjectId($request)){
             return response()->
-            json(['error'=>'invalid project id'], 500); 
+            json(['error'=>CustomValidators::$invalidProjectIdError], 500); 
         }
 
             try {
@@ -111,7 +111,7 @@ class ClientProjectsController extends Controller
         // Validates if the requested project ID belongs to the user.
         if(!CustomValidators::validateProjectId($request)){
             return response()->
-            json(['error'=>'invalid project id'], 500); 
+            json(['error'=>CustomValidators::$invalidProjectIdError], 500); 
         }
 
         if($request['saveToJira'] == 1){
