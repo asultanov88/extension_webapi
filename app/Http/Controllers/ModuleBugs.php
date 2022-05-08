@@ -35,8 +35,7 @@ class ModuleBugs extends Controller
             'stepsToReproduce'=>'required|string|max:1000|min:1',
             'expectedResult'=>'required|string|max:1000|min:1',
             'xpath'=>'required|string|max:500|min:1',
-            'environmentId'=>'required|integer|exists:environments,environmentId',
-            'screenshot'=>'required',
+            'environmentId'=>'required|integer|exists:environments,environmentId',            
         ]);
 
         // Validates if the requested project ID belongs to the user.
@@ -44,15 +43,33 @@ class ModuleBugs extends Controller
             return response()->
             json(['error'=>'invalid bug id'], 500); 
         }
+        
+        try {
+            
+            $bug = ModuleBug::join('modules','modules.moduleId','=','module_bugs.moduleId')
+            ->join('projects','projects.id','=','modules.projectId')  
+            ->where('module_bugs.bugId','=',$request['bugId'])
+            ->where('projects.clientId','=',$request['clientId'])
+            ->first();
 
-        $bug = ModuleBug::join('modules','modules.moduleId','=','module_bugs.moduleId')
-                        ->join('projects','projects.id','=','modules.projectId')  
-                        ->where('module_bugs.bugId','=',$request['bugId'])
-                        ->where('projects.clientId','=',$request['clientId'])
-                        ->first();
-                        
-        return $bug;
+            $bug->update(['moduleId' => $request['moduleId']]);       
+            $bug->bugEnvironment()->update(['environmentId'=>$request['environmentId']]);
+            $bug->title()->update(['title'=>$request['title']]);
+            $bug->actualResult()->update(['actualResults'=>$request['actualResult']]);        
+            $bug->description()->update(['description'=>$request['description']]);
+            $bug->stepsToReproduce()->update(['stepsToReproduce'=>$request['stepsToReproduce']]);
+            $bug->expectedResult()->update(['expectedResult'=>$request['expectedResult']]);
+            $bug->xpath()->update(['xpath'=>$request['xpath']]);
+            // Updates the timestamps.
+            $bug->touch();
 
+            return response()->
+            json(['result' => 'success'], 200);
+
+        } catch (Exception $e) {
+            return response()->
+            json($e, 500);
+        }
     }  
     
     /**
@@ -195,14 +212,14 @@ class ModuleBugs extends Controller
                             ->where('projects.clientId','=',$request['clientId'])
                             ->first(
                                 array(
-                                'module_bugs.bugId',
-                                'module_bugs.moduleId',
-                                'module_bugs.lkBugStatusId',
-                                'projects.id AS projectId',
-                                'projects.projectKey',
-                                'modules.name AS moduleName',
-                                'module_bugs.created_at',
-                                'module_bugs.updated_at',
+                                    'module_bugs.bugId',
+                                    'module_bugs.moduleId',
+                                    'module_bugs.lkBugStatusId',
+                                    'projects.id AS projectId',
+                                    'projects.projectKey',
+                                    'modules.name AS moduleName',
+                                    'module_bugs.created_at',
+                                    'module_bugs.updated_at',
                                 )
                             );
             
@@ -411,7 +428,7 @@ class ModuleBugs extends Controller
                 }
             }
 
-            // saving the gloab search keyword.
+            // saving the gloabal search keyword.
             $project = Modules::where('moduleId','=',$request['moduleId'])
                               ->join('projects','projects.id','=','modules.projectId')
                               ->first(

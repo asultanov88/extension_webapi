@@ -31,7 +31,7 @@ class BugAttachmentsController extends Controller
                                     ->delete();
 
       return $bugAttachment ? response()->json(['result' => 'success'], 200)
-                            : response()->json(['result' => 'unable to delete'], 500); 
+                            : response()->json(['result' => 'fail'], 500); 
       
     } catch (Exception $e) {
       return response()->json($e, 500);    
