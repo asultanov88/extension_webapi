@@ -18,6 +18,7 @@ class CreateBugAttachmentsTable extends Migration
             $table->uuid('uuid')->index();
             $table->foreignId('bugId')->references('bugId')->on('module_bugs');
             $table->longtext('attachmentPath');
+            $table->longtext('fileName');
             $table->timestamps();
         });
     }

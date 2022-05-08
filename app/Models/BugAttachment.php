@@ -17,6 +17,7 @@ class BugAttachment extends Model
         'uuid',
         'bugId',
         'attachmentPath',
+        'fileName',
     ];
 
     // 'bugId' is the foreign key in 'bug_attachments' table.

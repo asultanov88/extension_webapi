@@ -113,10 +113,17 @@ class ModuleBugs extends Controller
     public function getGlobalSearch(Request $request){
 
         $request->validate([
-            'query'=>'required|string|min:2'
+            'query'=>'required|string|min:2',
+            'includeCanceled'=>'required|boolean',
+            'includeCompleted'=>'required|boolean',
         ]);
 
         try {
+
+            $activeBugstatus = LkBugStatus::where('description','=','active')->first()->lkBugStatusId;
+            $inProgressBugStatus = LkBugStatus::where('description','=','in-progress')->first()->lkBugStatusId;
+            $cancelledBugStatus = LkBugStatus::where('description','=','cancelled')->first()->lkBugStatusId;
+            $completedBugStatus = LkBugStatus::where('description','=','completed')->first()->lkBugStatusId;
             
             $bugs = BugGlobalSearch::where('searchKeyword','like', '%'.$request['query'].'%')
                                     ->join('module_bugs','module_bugs.bugId','=','bug_global_searches.bugId')
@@ -126,6 +133,19 @@ class ModuleBugs extends Controller
                                     ->join('modules','modules.moduleId','=','module_bugs.moduleId')
                                     ->join('projects','projects.id','=','modules.projectId')  
                                     ->where('projects.clientId','=',$request['clientId'])
+                                    ->where(function($query) use ($activeBugstatus, $inProgressBugStatus)
+                                    {     
+                                       $query->where('module_bugs.lkBugStatusId','=',$activeBugstatus)
+                                             ->orWhere('module_bugs.lkBugStatusId','=',$inProgressBugStatus); 
+                                    })                           
+                                    ->when($request['includeCanceled'], function($query) use ($request, $cancelledBugStatus)
+                                        {
+                                            return $query->orWhere('module_bugs.lkBugStatusId','=',$cancelledBugStatus);
+                                        })
+                                    ->when($request['includeCompleted'], function($query) use ($request, $completedBugStatus)
+                                        {
+                                            return $query->orWhere('module_bugs.lkBugStatusId','=',$completedBugStatus);
+                                        })
                                     ->get(
                                         array(
                                             'projects.projectKey',
@@ -232,6 +252,8 @@ class ModuleBugs extends Controller
             'environmentId'=>'required|integer|exists:environments,environmentId',
             'fromDate'=>'required|string',
             'toDate'=>'required|string',
+            'includeCanceled'=>'required|boolean',
+            'includeCompleted'=>'required|boolean',
         ]);
 
         // Validates if the requested project ID belongs to the user.
@@ -252,6 +274,8 @@ class ModuleBugs extends Controller
           
             $activeBugstatus = LkBugStatus::where('description','=','active')->first()->lkBugStatusId;
             $inProgressBugStatus = LkBugStatus::where('description','=','in-progress')->first()->lkBugStatusId;
+            $cancelledBugStatus = LkBugStatus::where('description','=','cancelled')->first()->lkBugStatusId;
+            $completedBugStatus = LkBugStatus::where('description','=','completed')->first()->lkBugStatusId;
 
             $bugs = ModuleBug::join('bug_titles','bug_titles.bugId','=','module_bugs.bugId')
                             ->join('bug_xpath','bug_xpath.bugId','=','module_bugs.bugId')
@@ -265,7 +289,15 @@ class ModuleBugs extends Controller
                                     {     
                                        $query->where('module_bugs.lkBugStatusId','=',$activeBugstatus)
                                              ->orWhere('module_bugs.lkBugStatusId','=',$inProgressBugStatus); 
-                                    })
+                                    })                           
+                            ->when($request['includeCanceled'], function($query) use ($request, $cancelledBugStatus)
+                                {
+                                    return $query->orWhere('module_bugs.lkBugStatusId','=',$cancelledBugStatus);
+                                })
+                            ->when($request['includeCompleted'], function($query) use ($request, $completedBugStatus)
+                                {
+                                    return $query->orWhere('module_bugs.lkBugStatusId','=',$completedBugStatus);
+                                })
                             ->where('projects.clientId','=',$request['clientId'])
                             ->whereDate('module_bugs.created_at','>=',$fromDate)
                             ->whereDate('module_bugs.created_at','<=',$toDate)
@@ -427,7 +459,9 @@ class ModuleBugs extends Controller
             $publicPath = SaveFileHelper::getPublicPath($path[$key]);
             if(str_contains($key, 'attachment')){
                 // uuid of an attachment is needed only for attachments to be able to delete.
-                array_push($publicPathArr, ['path'=>$publicPath, 'uuid'=>$path->uuid]);
+                array_push($publicPathArr, ['path'=>$publicPath, 
+                                            'uuid'=>$path->uuid, 
+                                            'fileName'=>$path->fileName]);
             }elseif(str_contains($key, 'screenshot')){
                 array_push($publicPathArr, $publicPath);
             }            

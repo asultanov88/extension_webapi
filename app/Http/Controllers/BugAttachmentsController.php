@@ -130,6 +130,7 @@ class BugAttachmentsController extends Controller
             $attachment = new BugAttachment();
             $attachment['attachmentPath'] = $attachmentPath;
             $attachment['uuid'] = $temp_attachment['uuid'];
+            $attachment['fileName'] = $temp_attachment['fileName'];
             $bug->attachment()->save($attachment);
 
             // Mark temp file as permanent in 'temp_attachments' table.
