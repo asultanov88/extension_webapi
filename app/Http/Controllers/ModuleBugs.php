@@ -102,17 +102,24 @@ class ModuleBugs extends Controller
             // Updates the timestamps.
             $bug->touch();
             $bug->fresh();
+                                
+            if(!is_null($request['attachments']) && is_array($request['attachments'])){
+                // Make attachments permanent if available.
+                foreach ($request['attachments'] as $attachmentUuid){
+                    BugAttachmentsController::makeAttachmentPermanent($attachmentUuid, $request['uuid'], $request['clientId'], $bug);
+                }
+            }
 
             // saving the gloabal search keyword.
             $project = Modules::where('moduleId','=',$bug['moduleId'])
-                              ->join('projects','projects.id','=','modules.projectId')
-                              ->first(
-                                  array(                                      
-                                    'projects.id',
-                                    'projects.projectKey',                                      
-                                  )
-                                );
-
+            ->join('projects','projects.id','=','modules.projectId')
+            ->first(
+                array(                                      
+                    'projects.id',
+                    'projects.projectKey',                                      
+                )
+                );
+            
             $searchKeyword = strtolower($project['projectKey']).'-'.$bug['bugId'].' '.strtolower($bug->title['title']);
             BugGlobalSearch::where('bugId','=',$bug['bugId'])->update(['searchKeyword' => $searchKeyword]);
             
