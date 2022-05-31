@@ -19,9 +19,39 @@ use App\Http\Controllers\BugAttachmentsController;
 use Carbon\Carbon;
 use App\Http\Custom\CustomValidators;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 
 class ModuleBugs extends Controller
 {
+    /**
+     * Gets bug screenshot as blob
+     */
+    public function getScreenshotAsBlob(Request $request){
+        $request->validate([
+            'bugId'=>'required|integer|exists:module_bugs,bugId',
+        ]);
+
+        try {
+
+            $bug = ModuleBug::where('bugId','=',$request['bugId'])->first();  
+            $screenshotPath = $bug->screenshot[0]->screenshotPath;
+            $screenshotBlob = null;
+    
+            if(SaveFileHelper::checkFileExists($screenshotPath)){
+                // Bug has only 1 screenshot, others are attachments.
+                $screenshotBlob = base64_encode(file_get_contents($screenshotPath));
+            }
+            
+            return $screenshotBlob != null 
+            ? response()->json(['result' => $screenshotBlob], 200)
+            : response()->json(['result' => 'no screenshot found'], 500);
+
+        } catch (Exception $e) {
+            return response()->
+            json($e, 500);
+        }
+    }
+
     /**
      * Patch bug screenshot
      */
@@ -545,5 +575,29 @@ class ModuleBugs extends Controller
         }
 
         return $publicPathArr;
+    }
+
+    /**
+     * Creates Jira issue.
+     */
+    public function createJiraIssue(){
+        $authHeader = 'Basic '.base64_encode('Bug-Reporter:sg97GjZw');
+        $client = new Client([
+            'headers' => [
+                'Authorization'=>$authHeader, 
+                'content-type'=>'application/json'
+                ]
+            ]);
+
+        $body = ['fields'=>[
+                                'project'=>['id'=>'11301'],
+                                'summary'=>'JAWS automation test bug DELETE! - SUMMARY',
+                                'description'=>'Test API token access',
+                                'issuetype'=>['id'=>'10102']
+                            ]];
+
+        $response = $client->request('POST', 'https://jira.dssinc.com/rest/api/2/issue/', ['json'=>$body]);
+
+        return $response;
     }
 }

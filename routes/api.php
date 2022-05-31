@@ -64,6 +64,11 @@ Route::middleware('client')->delete('/attachment', [BugAttachmentsController::cl
 // Generate PDF.
 Route::post('/generate_pdf', [GeneratePdf::class, 'generatePdf']);
 
+// Get screenshot as blob.
+Route::middleware('client')->get('/screenshot-blob', [ModuleBugs::class, 'getScreenshotAsBlob']);
+
+// TEST
+// Route::middleware('client')->post('/test-jira', [ModuleBugs::class, 'createJiraIssue']);
 
 
 
