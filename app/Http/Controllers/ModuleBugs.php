@@ -20,9 +20,54 @@ use Carbon\Carbon;
 use App\Http\Custom\CustomValidators;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Crypt;
 
 class ModuleBugs extends Controller
 {
+    /**
+     * Creates Jira issue.
+     */
+    public function createJiraIssue(Request $request){
+        $request->validate([
+            'jiraSettings' => 'required'
+        ]);
+
+        $jiraDomain = Crypt::decryptString($request->jiraSettings['JiraDomain']);
+        $jiraUsername = Crypt::decryptString($request->jiraSettings['JiraUserName']);
+        $jiraApiToken = Crypt::decryptString($request->jiraSettings['JiraApiKey']);
+        $projectId = '10000';
+        $issueTypeId = $request->jiraSettings['JiraIssueType'];
+
+        $authHeader = 'Basic '.base64_encode("$jiraUsername:$jiraApiToken");
+        $client = new Client([
+            'headers' => [
+                'Authorization'=>$authHeader, 
+                'content-type'=>'application/json'
+                ]
+            ]);
+
+        $body = ['fields'=>[
+                                'project'=>['id'=>$projectId],
+                                'summary'=>'NEW JAWS automation test bug DELETE! - SUMMARY',
+                                'description'=>'Test API token access',
+                                'issuetype'=>['id'=>$issueTypeId]
+                            ]];
+
+        $request = $client->request('POST', "https://$jiraDomain/rest/api/2/issue/", ['json'=>$body]);
+
+        $response = json_decode($request->getBody());
+
+        return $response;
+        
+    }
+
+    /**
+     * Generate Jira link to create Jira bug via GET call.
+     */
+    public function getJiraLink(Request $request){
+        
+    }
+
     /**
      * Gets bug screenshot as blob
      */
@@ -575,29 +620,5 @@ class ModuleBugs extends Controller
         }
 
         return $publicPathArr;
-    }
-
-    /**
-     * Creates Jira issue.
-     */
-    public function createJiraIssue(){
-        $authHeader = 'Basic '.base64_encode('Bug-Reporter:sg97GjZw');
-        $client = new Client([
-            'headers' => [
-                'Authorization'=>$authHeader, 
-                'content-type'=>'application/json'
-                ]
-            ]);
-
-        $body = ['fields'=>[
-                                'project'=>['id'=>'11301'],
-                                'summary'=>'JAWS automation test bug DELETE! - SUMMARY',
-                                'description'=>'Test API token access',
-                                'issuetype'=>['id'=>'10102']
-                            ]];
-
-        $response = $client->request('POST', 'https://jira.dssinc.com/rest/api/2/issue/', ['json'=>$body]);
-
-        return $response;
-    }
+    }    
 }

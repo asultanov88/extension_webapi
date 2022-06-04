@@ -68,7 +68,7 @@ Route::post('/generate_pdf', [GeneratePdf::class, 'generatePdf']);
 Route::middleware('client')->get('/screenshot-blob', [ModuleBugs::class, 'getScreenshotAsBlob']);
 
 // TEST
-// Route::middleware('client')->post('/test-jira', [ModuleBugs::class, 'createJiraIssue']);
+Route::middleware('client')->post('/test-jira', [ModuleBugs::class, 'createJiraIssue']);
 
 
 
