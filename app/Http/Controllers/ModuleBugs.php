@@ -20,6 +20,8 @@ use Carbon\Carbon;
 use App\Http\Custom\CustomValidators;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use App\Http\Controllers\CustomControllers\ClientControllerDefinition;
+use App\Http\Controllers\CustomControllers\TestUserController;
 use Illuminate\Support\Facades\Crypt;
 
 class ModuleBugs extends Controller
@@ -29,43 +31,73 @@ class ModuleBugs extends Controller
      */
     public function createJiraIssue(Request $request){
         $request->validate([
-            'jiraSettings' => 'required'
+            'jiraSettings' => 'required',
+            'bugId'=>'required|integer|exists:module_bugs,bugId',
         ]);
 
-        $jiraDomain = Crypt::decryptString($request->jiraSettings['JiraDomain']);
-        $jiraUsername = Crypt::decryptString($request->jiraSettings['JiraUserName']);
-        $jiraApiToken = Crypt::decryptString($request->jiraSettings['JiraApiKey']);
-        $projectId = '10000';
-        $issueTypeId = $request->jiraSettings['JiraIssueType'];
+        try {
+            
+            $jiraDomain = Crypt::decryptString($request->jiraSettings['JiraDomain']);
+            $jiraUsername = Crypt::decryptString($request->jiraSettings['JiraUserName']);
+            $jiraApiToken = Crypt::decryptString($request->jiraSettings['JiraApiKey']);
+            $issueTypeId = $request->jiraSettings['JiraIssueType'];
+            $bugId = $request['bugId'];
+            $bugObject = $this->getBugdetails($request, false, false);
+            $projectId = $bugObject['projectJiraId'];
+            $unableToCreateJira = false;
+    
+            $authHeader = 'Basic '.base64_encode("$jiraUsername:$jiraApiToken");
+            $client = new Client([
+                'headers' => [
+                    'Authorization'=>$authHeader, 
+                    'content-type'=>'application/json'
+                ],
+                ]);
+    
+            $body = null;
+    
+            // Depending on client's Jira controller id, body is geberate from client specific class.
+            switch(intval($request->jiraSettings['ClientJiraControllerId'])){
+                case ClientControllerDefinition::TestClient:
+                    $body = TestUserController::getJiraBody($projectId, $issueTypeId, $bugObject);
+                    break;
+                default: 
+                    $body = null;
+            }
+    
+            if($body != null){
+    
+                $request = $client->request('POST', "https://$jiraDomain/rest/api/2/issue/", ['json'=>$body]);
+    
+                $response = json_decode($request->getBody());    
 
-        $authHeader = 'Basic '.base64_encode("$jiraUsername:$jiraApiToken");
-        $client = new Client([
-            'headers' => [
-                'Authorization'=>$authHeader, 
-                'content-type'=>'application/json'
-                ]
-            ]);
+                if(isset($response->id)){
+                    $this->updateBugJiraLinks($bugId, $response);
+                    return response()->
+                    json(['result' => 'success'], 200);
+                }else{
+                    $unableToCreateJira = true;
+                }
+            }else{
+                $unableToCreateJira = true;
+            }
 
-        $body = ['fields'=>[
-                                'project'=>['id'=>$projectId],
-                                'summary'=>'NEW JAWS automation test bug DELETE! - SUMMARY',
-                                'description'=>'Test API token access',
-                                'issuetype'=>['id'=>$issueTypeId]
-                            ]];
+            if($unableToCreateJira){
+                return response()->
+                json(['result'=>'Unable to create Jira body.'], 500);
+            }
 
-        $request = $client->request('POST', "https://$jiraDomain/rest/api/2/issue/", ['json'=>$body]);
-
-        $response = json_decode($request->getBody());
-
-        return $response;
-        
+        } catch (\Exception $e) {
+            return response()->
+            json(['result'=>'Unable to create Jira ticket.'], 500);
+        }        
     }
 
     /**
-     * Generate Jira link to create Jira bug via GET call.
+     * Generate Jira URL link to create Jira bug via GET call.
      */
     public function getJiraLink(Request $request){
-        
+
     }
 
     /**
@@ -334,7 +366,7 @@ class ModuleBugs extends Controller
     /**
      * Get bug details by bugId.
      */
-    public function getBugdetails(Request $request){
+    public function getBugdetails(Request $request, $includePublicPath = true, $returnJson = true){
         $request->validate([
             'bugId'=>'required|integer|exists:module_bugs,bugId',
         ]);
@@ -351,6 +383,7 @@ class ModuleBugs extends Controller
                                     'module_bugs.moduleId',
                                     'module_bugs.lkBugStatusId',
                                     'projects.id AS projectId',
+                                    'projects.jiraId AS jiraId',
                                     'projects.projectKey',
                                     'modules.name AS moduleName',
                                     'module_bugs.created_at',
@@ -366,7 +399,8 @@ class ModuleBugs extends Controller
                     'bugId' => $bug['bugId'], 
                     'bugIndex' => strtoupper($bug['projectKey']).'-'.$bug['bugId'],
                     'projectId' => $bug['projectId'],
-                    'projectName' => $bug['projectKey'],               
+                    'projectName' => $bug['projectKey'],  
+                    'projectJiraId' => $bug['jiraId'],             
                     'moduleId' => $bug['moduleId'],
                     'moduleName' => $bug['moduleName'],
                     'lkBugStatusId' => $bug['lkBugStatusId'],
@@ -379,15 +413,19 @@ class ModuleBugs extends Controller
                     'expectedResult' => $bug['expectedResult']['expectedResult'],
                     'actualResult' => $bug['actualResult']['actualResults'],
                     'xpath' => $bug['xpath']['xpath'],
-                    'screenshots' => $this->getPath($bug->screenshot, 'screenshotPath'),
-                    'attachments' => $this->getPath($bug->attachment, 'attachmentPath'),
+                    'screenshots' => $includePublicPath ? $this->getPath($bug->screenshot, 'screenshotPath') : $bug->screenshot,
+                    'attachments' => $includePublicPath ? $this->getPath($bug->attachment, 'attachmentPath') : $bug->attachment,
                     'createdAt' => $bug['created_at'],
                     'updatedAt' => $bug['updated_at'],
                 ];
             }
             
-            return $result ? response()->json(['result' => $result], 200)
-                           : response()->json(['result' => 'unable to get bug details'], 500);
+            if($returnJson){
+                return $result ? response()->json(['result' => $result], 200)
+                               : response()->json(['result' => 'unable to get bug details'], 500);
+            }else{
+                return $result;
+            }
             
         } catch (Exception $e) {
             return response()->
@@ -577,22 +615,9 @@ class ModuleBugs extends Controller
             $globalSearch['bugId'] = $bug['bugId'];
             $globalSearch['searchKeyword'] = strtolower($project['projectKey']).'-'.$bug['bugId'].' '.strtolower($request['title']);
             $globalSearch->save();
-
-            // Load all relationships before return.
-            $bug->title;
-            $bug->bugEnvironment->environment;
-            $bug->actualResult;
-            $bug->description;
-            $bug->stepsToReproduce;
-            $bug->expectedResult;
-            $bug->xpath;
-            
-            // No need to load screenshot and attachment relationships for now.
-            //$bug->screenshot;
-            //$bug->attachment;
-    
+  
             return response()->
-            json(['result' => $bug], 200);    
+            json(['result' => ['bugId' => $bug->bugId]], 200);    
 
         } catch (Exception $e) {
             return response()->
@@ -601,7 +626,7 @@ class ModuleBugs extends Controller
     }
     
     /**
-     * Extracts screenshot path and returns array of public path.
+     * Extracts screenshot or attachment path and returns array of public path.
      */
     private function getPath($pathArr, $key){
 
@@ -620,5 +645,19 @@ class ModuleBugs extends Controller
         }
 
         return $publicPathArr;
-    }    
+    }  
+    
+    /**
+     * Updates existing bug's Jira links.
+     */
+    private function updateBugJiraLinks($bugId, $response){
+
+        $bug = ModuleBug::where('bugId','=',$bugId)->first();
+        $bug->update([
+            'jiraObjectUrl' => $response->self,
+            'jiraTicket' => $response->key,
+            'jiraId' => $response->id
+        ]);
+        
+    }
 }

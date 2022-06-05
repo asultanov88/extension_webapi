@@ -16,6 +16,7 @@ class Projects extends Model
         'id',
         'jiraId',
         'projectKey',
+        'description',
         'clientId',
         'lkProjectStatusId',
     ];

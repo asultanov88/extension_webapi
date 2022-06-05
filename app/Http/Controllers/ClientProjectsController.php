@@ -156,6 +156,10 @@ class ClientProjectsController extends Controller
                                 null : $request['jiraId'],
                 ]);
 
+                if(isset($request['description'])){
+                    $project->update(['description' => $request['description']]);
+                }
+
                 return response()->
                 json(['result' => $project], 200);
 
@@ -278,6 +282,10 @@ class ClientProjectsController extends Controller
             ? $request['jiraId']
             : null;
             $projects['LkProjectStatusId'] = $activeStatus;
+
+            if(isset($request['description'])){
+                $projects['description'] = $request['description'];
+            }
 
             $projects->save();
 

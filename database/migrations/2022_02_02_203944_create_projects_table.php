@@ -17,6 +17,7 @@ class CreateProjectsTable extends Migration
             $table->id('id')->index();
             $table->integer('jiraId')->nullable();
             $table->string('projectKey');
+            $table->longtext('description')->nullable();
             $table->integer('clientId')->index();
             $table->integer('lkProjectStatusId');
             $table->timestamps();

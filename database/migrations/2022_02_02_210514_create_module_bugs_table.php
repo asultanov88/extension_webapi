@@ -17,6 +17,9 @@ class CreateModuleBugsTable extends Migration
             $table->id('bugId')->index();
             $table->foreignId('moduleId')->references('moduleId')->on('Modules');
             $table->integer('lkBugStatusId')->references('lkBugStatusId')->on('lk_bug_statuses');
+            $table->longtext('jiraObjectUrl')->nullable();
+            $table->string('jiraTicket')->nullable();
+            $table->integer('jiraId')->nullable();
             $table->timestamps();
         });
     }
