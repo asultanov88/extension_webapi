@@ -225,7 +225,7 @@ class ModuleBugs extends Controller
             ->join('projects','projects.id','=','modules.projectId')
             ->first(
                 array(                                      
-                    'projects.id',
+                    'projects.idx',
                     'projects.projectKey',                                      
                 )
                 );
@@ -236,9 +236,12 @@ class ModuleBugs extends Controller
             return response()->
             json(['result' => 'success'], 200);
 
-        } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+        } catch (\Exception $e) {
+            return response()->json(
+                                    env('APP_ENV') == 'local' 
+                                    ? $e 
+                                    : ['result' => ['message' => 'Unable to update the bug.']], 500
+                                );
         }
     }  
     
