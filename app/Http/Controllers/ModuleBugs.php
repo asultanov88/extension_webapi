@@ -642,7 +642,7 @@ class ModuleBugs extends Controller
             // Add message to the response if Jira issue creation was unsuccessful.
             $result = ['result' => ['bugId' => $bug->bugId]];
             if(!$jiraResponse){
-                $result['message'] = 'Unable to create Jira ticket.';
+                array_push($result['result'], ['message' => 'Unable to create Jira ticket.'])
             }
   
             return response()->
