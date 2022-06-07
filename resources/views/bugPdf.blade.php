@@ -74,7 +74,7 @@
         @endisset
 
     @isset($screenshot)
-        <div class="screenshot" style="background-image: url('{{$screenshot}}'); background-repeat: no-repeat;"></div>
+        <div class="screenshot" style="background-image: url('{{$screenshot}}'); background-repeat: no-repeat; background-position: center;  background-image-resize: 3"></div>
         @endisset
     </div>
 </body>
