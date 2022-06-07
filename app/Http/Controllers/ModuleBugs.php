@@ -29,11 +29,16 @@ class ModuleBugs extends Controller
     /**
      * Creates Jira issue.
      */
-    public function createJiraIssue(Request $request){
+    public function createJiraIssue(Request $request, $returnJson = true){
         $request->validate([
             'jiraSettings' => 'required',
+            'jiraSettings.ClientJiraControllerId' => 'required|integer|min:1',
+            'jiraSettings.JiraDomain' => 'required|string',
+            'jiraSettings.JiraUserName' => 'required|string',
+            'jiraSettings.JiraApiKey' => 'required|string',
+            'jiraSettings.JiraIssueType' => 'required|integer|min:1',
             'bugId'=>'required|integer|exists:module_bugs,bugId',
-        ]);
+        ]);        
 
         try {
             
@@ -72,9 +77,9 @@ class ModuleBugs extends Controller
                 $response = json_decode($request->getBody());    
 
                 if(isset($response->id)){
-                    $this->updateBugJiraLinks($bugId, $response);
-                    return response()->
-                    json(['result' => 'success'], 200);
+                    // return true if the function is called internally.
+                    $this->updateBugJiraLinks($bugId, $response, $jiraDomain);
+                    return $returnJson ? response()->json(['result' => 'success'], 200) : true;
                 }else{
                     $unableToCreateJira = true;
                 }
@@ -83,13 +88,11 @@ class ModuleBugs extends Controller
             }
 
             if($unableToCreateJira){
-                return response()->
-                json(['result'=>'Unable to create Jira body.'], 500);
+                return $returnJson ? response()->json(['result'=>'Unable to create Jira body.'], 500) : false;
             }
 
         } catch (\Exception $e) {
-            return response()->
-            json(['result'=>'Unable to create Jira ticket.'], 500);
+            return $returnJson ? response()->json(['result'=>'Unable to create Jira ticket.'], 500) : false;
         }        
     }
 
@@ -382,6 +385,7 @@ class ModuleBugs extends Controller
                                     'module_bugs.bugId',
                                     'module_bugs.moduleId',
                                     'module_bugs.lkBugStatusId',
+                                    'module_bugs.jiraTicketUrl',
                                     'projects.id AS projectId',
                                     'projects.jiraId AS jiraId',
                                     'projects.projectKey',
@@ -413,6 +417,7 @@ class ModuleBugs extends Controller
                     'expectedResult' => $bug['expectedResult']['expectedResult'],
                     'actualResult' => $bug['actualResult']['actualResults'],
                     'xpath' => $bug['xpath']['xpath'],
+                    'jiraTicketUrl' => $bug['jiraTicketUrl'],
                     'screenshots' => $includePublicPath ? $this->getPath($bug->screenshot, 'screenshotPath') : $bug->screenshot,
                     'attachments' => $includePublicPath ? $this->getPath($bug->attachment, 'attachmentPath') : $bug->attachment,
                     'createdAt' => $bug['created_at'],
@@ -542,6 +547,7 @@ class ModuleBugs extends Controller
             'xpath'=>'required|string|max:500|min:1',
             'environmentId'=>'required|integer|exists:environments,environmentId',
             'screenshot'=>'required',
+            'saveToJira'=>'required|integer|max:1|min:0',
         ]);
 
         // Validates if the requested module ID belongs to the user.
@@ -615,9 +621,32 @@ class ModuleBugs extends Controller
             $globalSearch['bugId'] = $bug['bugId'];
             $globalSearch['searchKeyword'] = strtolower($project['projectKey']).'-'.$bug['bugId'].' '.strtolower($request['title']);
             $globalSearch->save();
+
+            // Saving to Jira if saveToJira = 1.
+            $jiraResponse = false;
+
+            if($request['saveToJira'] == 1){    
+                $request['bugId'] = $bug->bugId;
+                $request->validate([
+                    'jiraSettings' => 'required',
+                    'jiraSettings.ClientJiraControllerId' => 'required|integer|min:1',
+                    'jiraSettings.JiraDomain' => 'required|string',
+                    'jiraSettings.JiraUserName' => 'required|string',
+                    'jiraSettings.JiraApiKey' => 'required|string',
+                    'jiraSettings.JiraIssueType' => 'required|integer|min:1',
+                    'bugId'=>'required|integer|exists:module_bugs,bugId',
+                ]);  
+                $jiraResponse = $this->createJiraIssue($request, false);
+            }
+
+            // Add message to the response if Jira issue creation was unsuccessful.
+            $result = ['result' => ['bugId' => $bug->bugId]];
+            if(!$jiraResponse){
+                $result['message'] = 'Unable to create Jira ticket.';
+            }
   
             return response()->
-            json(['result' => ['bugId' => $bug->bugId]], 200);    
+            json($result, 200);    
 
         } catch (Exception $e) {
             return response()->
@@ -643,21 +672,20 @@ class ModuleBugs extends Controller
                 array_push($publicPathArr, $publicPath);
             }            
         }
-
         return $publicPathArr;
     }  
     
     /**
      * Updates existing bug's Jira links.
      */
-    private function updateBugJiraLinks($bugId, $response){
+    private function updateBugJiraLinks($bugId, $response, $jiraDomain){
 
         $bug = ModuleBug::where('bugId','=',$bugId)->first();
         $bug->update([
             'jiraObjectUrl' => $response->self,
             'jiraTicket' => $response->key,
-            'jiraId' => $response->id
-        ]);
-        
+            'jiraId' => $response->id,
+            'jiraTicketUrl' => "https://$jiraDomain/browse/$response->key",
+        ]);        
     }
 }
