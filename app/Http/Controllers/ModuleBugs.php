@@ -225,10 +225,9 @@ class ModuleBugs extends Controller
             ->join('projects','projects.id','=','modules.projectId')
             ->first(
                 array(                                      
-                    'projects.idx',
+                    'projects.id',
                     'projects.projectKey',                                      
-                )
-                );
+                ));
             
             $searchKeyword = strtolower($project['projectKey']).'-'.$bug['bugId'].' '.strtolower($bug->title['title']);
             BugGlobalSearch::where('bugId','=',$bug['bugId'])->update(['searchKeyword' => $searchKeyword]);
