@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Environment;
 use App\Models\ModuleBug;
+use Exception;
 
 class ClientEnvironmentsController extends Controller
 {

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Custom\SaveFileHelper;
 use App\Models\BugAttachment;
 use App\Models\TempAttachment;
-
+use Exception;
 
 class BugAttachmentsController extends Controller
 {

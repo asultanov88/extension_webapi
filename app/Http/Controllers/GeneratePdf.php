@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Custom\SaveFileHelper;
 use Illuminate\Support\Str;
+use Exception;
 
 class GeneratePdf extends Controller
 {

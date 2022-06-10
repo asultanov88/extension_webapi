@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Modules;
 use App\Http\Custom\CustomValidators;
+use Exception;
 
 class ClientModulesController extends Controller
 {

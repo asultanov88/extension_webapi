@@ -12,7 +12,6 @@ use App\Models\BugTitle;
 use App\Models\LkBugStatus;
 use App\Models\BugEnvironment;
 use App\Models\Modules;
-use App\Models\Projects;
 use App\Models\BugGlobalSearch;
 use App\Http\Custom\SaveFileHelper;
 use App\Http\Controllers\BugAttachmentsController;
@@ -23,6 +22,8 @@ use GuzzleHttp\Client;
 use App\Http\Controllers\CustomControllers\ClientControllerDefinition;
 use App\Http\Controllers\CustomControllers\TestUserController;
 use Illuminate\Support\Facades\Crypt;
+use Exception;
+use File;
 
 class ModuleBugs extends Controller
 {
@@ -47,7 +48,7 @@ class ModuleBugs extends Controller
             $jiraApiToken = Crypt::decryptString($request->jiraSettings['JiraApiKey']);
             $issueTypeId = $request->jiraSettings['JiraIssueType'];
             $bugId = $request['bugId'];
-            $bugObject = $this->getBugdetails($request, false, false);
+            $bugObject = $this->getBugdetails($request, false);
             $projectId = $bugObject['projectJiraId'];
             $unableToCreateJira = false;
     
@@ -91,12 +92,12 @@ class ModuleBugs extends Controller
                 return $returnJson ? response()->json(['result'=>'Unable to create Jira body.'], 500) : false;
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $returnJson ? response()->json(['result'=>'Unable to create Jira ticket.'], 500) : false;
         }        
     }
 
-    /**
+     /**
      * Generate Jira URL link to create Jira bug via GET call.
      */
     public function getJiraLink(Request $request){
@@ -371,7 +372,7 @@ class ModuleBugs extends Controller
     /**
      * Get bug details by bugId.
      */
-    public function getBugdetails(Request $request, $includePublicPath = true, $returnJson = true){
+    public function getBugdetails(Request $request, $returnJson = true){
         $request->validate([
             'bugId'=>'required|integer|exists:module_bugs,bugId',
         ]);
@@ -420,8 +421,8 @@ class ModuleBugs extends Controller
                     'actualResult' => $bug['actualResult']['actualResults'],
                     'xpath' => $bug['xpath']['xpath'],
                     'jiraTicketUrl' => $bug['jiraTicketUrl'],
-                    'screenshots' => $includePublicPath ? $this->getPath($bug->screenshot, 'screenshotPath') : $bug->screenshot,
-                    'attachments' => $includePublicPath ? $this->getPath($bug->attachment, 'attachmentPath') : $bug->attachment,
+                    'screenshots' => $this->getPath($bug->screenshot, 'screenshotPath'),
+                    'attachments' => $this->getPath($bug->attachment, 'attachmentPath'),
                     'createdAt' => $bug['created_at'],
                     'updatedAt' => $bug['updated_at'],
                 ];
