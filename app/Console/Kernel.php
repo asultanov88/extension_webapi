@@ -40,7 +40,7 @@ class Kernel extends ConsoleKernel
 
         // Deletes all generated PDF and related screenshot files.
         $schedule->call(function () {
-            $publcPath = 'home/evendora/extension-service/';
+            $publcPath = '';
             $pdfDirectory = $publcPath.'media-repository/PDF/*';
 
             $pdfFiles = glob($pdfDirectory);
