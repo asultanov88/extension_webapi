@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
     {
         // Deletes all processed and more than 1 hour old temporary attachments.
         $schedule->call(function () {
-            $publcPath = public_path().'/';
+            $publcPath = env('APP_ENV') == 'local' ? public_path().'/' : env('APP_PUBLIC_PATH');
             $tempAttachments = TempAttachment::all();
             // All records now - 1 hour are deleted.
             $timeStampNow = Carbon::now()->addHours(-1);
@@ -40,9 +40,9 @@ class Kernel extends ConsoleKernel
 
         // Deletes all generated PDF and related screenshot files.
         $schedule->call(function () {
-            $publcPath = '/home/evendora/extension-service/';
+            // Pulls the public path from the .env file. Replace on the server as needed.
+            $publcPath = env('APP_ENV') == 'local' ? public_path().'/' : env('APP_PUBLIC_PATH');
             $pdfDirectory = $publcPath.'media-repository/PDF/*';
-            error_log($pdfDirectory);
 
             $pdfFiles = glob($pdfDirectory);
             foreach($pdfFiles as $file){
