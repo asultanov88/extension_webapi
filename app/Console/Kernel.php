@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
         // Deletes all processed and more than 1 hour old temporary attachments.
         $schedule->call(function () {
             $publcPath = public_path().'/';
-            $tempAttachments = TempAttachment::truncate();
+            $tempAttachments = TempAttachment::all();
             // All records now - 1 hour are deleted.
             $timeStampNow = Carbon::now()->addHours(-1);
 
