@@ -9,27 +9,6 @@ use Exception;
 
 class GeneratePdf extends Controller
 {
-    
-    public function cronJob(){
-        $publcPath = '';
-        $pdfDirectory = $publcPath.'media-repository/PDF/*';
-        error_log($pdfDirectory);
-
-        $pdfFiles = glob($pdfDirectory);
-        foreach($pdfFiles as $file){
-            if(is_file($file)) {
-                unlink($file);
-            }
-        }
-
-        $pdfDirectory = $publcPath.'media-repository/PDF/screenshots/*';
-        $screenshotFiles = glob($pdfDirectory);
-        foreach($screenshotFiles as $file){
-            if(is_file($file)) {
-                unlink($file);
-            }
-        }   
-    }
     /**
      * Generates a PDF document based on the bug object and return the public path.
      */
