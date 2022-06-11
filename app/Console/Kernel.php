@@ -18,6 +18,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // NOTE: cron job commans for hawkhost (change as needed):
+        // * * * * * cd /home/evendora/extension-service-api && php artisan schedule:run >> /dev/null 2>&1
+        
         // Deletes all processed and more than 1 hour old temporary attachments.
         $schedule->call(function () {
             $publcPath = env('APP_ENV') == 'local' ? public_path().'/' : env('APP_PUBLIC_PATH');
