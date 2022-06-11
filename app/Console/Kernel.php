@@ -42,6 +42,8 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $publcPath = public_path().'/';
             $pdfDirectory = $publcPath.'media-repository/PDF/*';
+            error_log($pdfDirectory);
+
             $pdfFiles = glob($pdfDirectory);
             foreach($pdfFiles as $file){
                 if(is_file($file)) {
