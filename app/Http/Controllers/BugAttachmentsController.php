@@ -34,7 +34,9 @@ class BugAttachmentsController extends Controller
                             : response()->json(['result' => 'fail'], 500); 
       
     } catch (Exception $e) {
-      return response()->json($e, 500);    
+      return response()->json(
+        env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to delete the attachment.']], 500
+      );
     }
   }
 
@@ -70,8 +72,9 @@ class BugAttachmentsController extends Controller
                        : response()->json(['result' => 'fail'], 500); 
                        
     } catch (Exception $e) {
-      return response()->
-      json($e, 500);
+      return response()->json(
+        env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to delete the temporary attachment.']], 500
+      );
     }
 
   }
@@ -104,8 +107,9 @@ class BugAttachmentsController extends Controller
       }  
 
     } catch (Exception $e) {
-      return response()->
-      json($e, 500);
+      return response()->json(
+        env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to upload the attachment.']], 500
+      );
     }
                 
   }
@@ -141,7 +145,9 @@ class BugAttachmentsController extends Controller
         }  
       
     } catch (Exception $e) {
-      return $e;
+      return response()->json(
+        env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to map the attachment to the bug.']], 500
+      );
     }
   }
 }

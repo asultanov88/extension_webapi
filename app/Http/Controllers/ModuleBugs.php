@@ -111,6 +111,12 @@ class ModuleBugs extends Controller
             'bugId'=>'required|integer|exists:module_bugs,bugId',
         ]);
 
+        // Validates if the requested bug ID belongs to the user.
+        if(!CustomValidators::validateBugId($request)){
+            return response()->
+            json(['error'=>CustomValidators::$invalidBugIdError], 500); 
+        }
+
         try {
 
             $bug = ModuleBug::where('bugId','=',$request['bugId'])->first();  
@@ -127,8 +133,9 @@ class ModuleBugs extends Controller
             : response()->json(['result' => 'no screenshot found'], 500);
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to generate screenshot blob.']], 500
+              );
         }
     }
 
@@ -166,11 +173,10 @@ class ModuleBugs extends Controller
             json(['result' => 'success'], 200);
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to update bug screenshot.']], 500
+              );
         }
-
-
     }
 
     /**
@@ -237,10 +243,8 @@ class ModuleBugs extends Controller
 
         } catch (\Exception $e) {
             return response()->json(
-                                    env('APP_ENV') == 'local' 
-                                    ? $e 
-                                    : ['result' => ['message' => 'Unable to update the bug.']], 500
-                                );
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to update the bug.']], 500
+              );
         }
     }  
     
@@ -274,8 +278,9 @@ class ModuleBugs extends Controller
             json(['result' => 'success'], 200);
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to update bug status.']], 500
+              );
         }
     }
 
@@ -291,8 +296,9 @@ class ModuleBugs extends Controller
             json(['result' => $bugStatuses], 200); 
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to get bug status list.']], 500
+              );
         }
     }
 
@@ -300,7 +306,6 @@ class ModuleBugs extends Controller
      * Search for a bug by query keyword.
      */
     public function getGlobalSearch(Request $request){
-
         $request->validate([
             'query'=>'required|string|min:2',
             'includeCanceled'=>'required|integer|min:0|max:1',
@@ -363,8 +368,9 @@ class ModuleBugs extends Controller
             json(['result' => $result], 200); 
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to search for bugs.']], 500
+              );
         }
     }
 
@@ -437,8 +443,9 @@ class ModuleBugs extends Controller
             }
             
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to get bug details.']], 500
+              );
         }
     }
 
@@ -530,10 +537,10 @@ class ModuleBugs extends Controller
             json(['result' => $result], 200); 
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to get bug list.']], 500
+              );
         }
-
     }
 
     /**
@@ -655,8 +662,9 @@ class ModuleBugs extends Controller
             json($result, 200);    
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to create bug.']], 500
+              );
         }
     }
     

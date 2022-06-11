@@ -37,21 +37,22 @@ class ClientModulesController extends Controller
                 if(count($module['bugs']) > 0){
 
                     return response()->
-                    json(['status' => 'unable to delete'], 500);  
+                    json(['error' => 'Unable to delete, module is in use.'], 500);  
     
                 }else{
     
                     $module->delete();
                     return response()->
-                    json(['status' => 'success'], 200);
+                    json(['result' => 'success'], 200);
     
                 }   
 
             }                   
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);        
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to delete the module.']], 500
+              );       
         } 
     }
 
@@ -91,8 +92,7 @@ class ClientModulesController extends Controller
                                 
                 if($duplicateExists){
                     $errResponse = [
-                        'error' => 'module already exists',
-                        'result' => $matchingModules,
+                        'error' => 'Module already exists'
                     ];
         
                     return response()->
@@ -120,8 +120,9 @@ class ClientModulesController extends Controller
             }              
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);        
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to update the module.']], 500
+              );       
         }
     }
 
@@ -168,8 +169,9 @@ class ClientModulesController extends Controller
             json(['result' => $modulesResult], 200);
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);        
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to search for module.']], 500
+              );        
         }
     }
 
@@ -199,8 +201,7 @@ class ClientModulesController extends Controller
             if(!is_null($existingModule)){
 
                 $errResponse = [
-                    'error' => 'Module already exists for this project.',
-                    'result' => $existingModule,
+                    'error' => 'Module already exists for selected project.',
                 ];
     
                 return response()->
@@ -218,8 +219,9 @@ class ClientModulesController extends Controller
             json(['result' => $modules], 200);
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);        
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to create module.']], 500
+              );        
         }
     }
 }

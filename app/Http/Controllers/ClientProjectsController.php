@@ -46,8 +46,9 @@ class ClientProjectsController extends Controller
             json(['result' => $project], 200);
 
         } catch (Exception $e) {
-            return response()->
-            json([$e=>'error'], 500);     
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to update project status.']], 500
+              );    
         }
 
     }
@@ -78,7 +79,7 @@ class ClientProjectsController extends Controller
                 if(count($project['modules']) > 0){
       
                     return response()->
-                    json(['status'=>'unable to delete'], 500); 
+                    json(['error'=>'Unable to delete, project is in use.'], 500); 
     
                 }else{               
     
@@ -92,8 +93,9 @@ class ClientProjectsController extends Controller
             }
             
         } catch (Exception $e) {
-            return response()->
-            json([$e=>'error'], 500);     
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to delete project.']], 500
+              );    
         }
     }
 
@@ -137,7 +139,6 @@ class ClientProjectsController extends Controller
         if(!is_null($duplicateExists)){
             $errResponse = [
                 'error' => 'project already exists',
-                'result' => $duplicateExists,
             ];
 
             return response()->
@@ -167,8 +168,9 @@ class ClientProjectsController extends Controller
             }
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to update the project.']], 500
+              );
         }
 
     }
@@ -224,8 +226,9 @@ class ClientProjectsController extends Controller
             json(['result' => $projects], 200);
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to search for project.']], 500
+              );
         }
 
     }
@@ -263,7 +266,6 @@ class ClientProjectsController extends Controller
 
             $errResponse = [
                 'error' => 'project already exists',
-                'result' => $jiraProjects,
             ];
 
             return response()->
@@ -294,11 +296,9 @@ class ClientProjectsController extends Controller
             json(['result' => $projects], 200);
 
         } catch (Exception $e) {
-
-            return response()->
-            json($e, 500);
-
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to create project.']], 500
+              );
         }
-
     }
 }

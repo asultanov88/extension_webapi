@@ -50,7 +50,7 @@
         @endisset
 
     @isset($title)
-        <div class="title"><b>Title:</b> {{ $title }}</div>
+        <div class="title"><b>Summary:</b> {{ $title }}</div>
         @endisset
 
     @isset($actualResult)

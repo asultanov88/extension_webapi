@@ -30,8 +30,9 @@ class ClientEnvironmentsController extends Controller
             json(['result' => $environment], 200); 
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);        
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to update the environment.']], 500
+              );       
         }
     }
 
@@ -62,23 +63,24 @@ class ClientEnvironmentsController extends Controller
         
             if($environmentUsed){
 
-                return response()->
-                json(['status' => 'unable to delete'], 500);
+                return response()->json(
+                    env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to delete, the environment is in use.']], 500
+                  );
 
             }else{
 
-                $environment = Environment::where('environmentId','=',$request['environmentId'])
-                                            ->first();                                     
+                $environment = Environment::where('environmentId','=',$request['environmentId'])->first();                                     
                 $environment->delete();
                 
                 return response()->
-                json(['status' => 'success'], 200); 
+                json(['result' => 'success'], 200); 
             
             }
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);        
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to delete the environment.']], 500
+              );       
         }
     }
 
@@ -124,8 +126,9 @@ class ClientEnvironmentsController extends Controller
             json(['result' => $queryResult], 200);
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);        
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to search for environment.']], 500
+              );       
         }
     }
 
@@ -161,8 +164,9 @@ class ClientEnvironmentsController extends Controller
             }            
             
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);        
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to create environment.']], 500
+              );       
         }
     }
 }

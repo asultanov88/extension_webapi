@@ -18,7 +18,7 @@ class GeneratePdf extends Controller
 
             $htmlScreenshot = null;
             // Saving screenshot as temporary png file.
-            if(isset($request['screenshot'])){
+            if(isset($request['screenshot']) && strlen(trim($request['screenshot'])) > 1){
                 $screenshotPath = SaveFileHelper::saveBlobForPdf($request['screenshot']);
                 $htmlScreenshot = view('bugPdf', ['screenshot' => $screenshotPath])->render();
             }
@@ -66,8 +66,9 @@ class GeneratePdf extends Controller
             json(['result' => $pdfPublicPath], 200);
 
         } catch (Exception $e) {
-            return response()->
-            json($e, 500);
+            return response()->json(
+                env('APP_ENV') == 'local' ? $e : ['result' => ['message' => 'Unable to generate PDF.']], 500
+              );
         }
     }
 }
