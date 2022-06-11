@@ -7,6 +7,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Http\Custom\SaveFileHelper;
 use App\Models\TempAttachment;
 use Carbon\Carbon;
+use App\Http\Controllers\GeneratePdf;
 
 class Kernel extends ConsoleKernel
 {
@@ -40,24 +41,9 @@ class Kernel extends ConsoleKernel
 
         // Deletes all generated PDF and related screenshot files.
         $schedule->call(function () {
-            $publcPath = '';
-            $pdfDirectory = $publcPath.'media-repository/PDF/*';
 
-            $pdfFiles = glob($pdfDirectory);
-            foreach($pdfFiles as $file){
-                if(is_file($file)) {
-                    unlink($file);
-                }
-            }
-
-            $pdfDirectory = $publcPath.'media-repository/PDF/screenshots/*';
-            $screenshotFiles = glob($pdfDirectory);
-            foreach($screenshotFiles as $file){
-                if(is_file($file)) {
-                    unlink($file);
-                }
-            }
-
+            GeneratePdf::cronJob();
+            
         })->everyMinute()->timezone('America/New_York');
     }
 
