@@ -142,7 +142,7 @@ class ClientEnvironmentsController extends Controller
 
         try {
             
-            $matchingEnvironment = Environment::where('XclientId','=',$request['clientId'])
+            $matchingEnvironment = Environment::where('clientId','=',$request['clientId'])
                                           ->whereRaw('LOWER(name) = LOWER(?)', ["{$request['name']}"])
                                           ->first();
 
