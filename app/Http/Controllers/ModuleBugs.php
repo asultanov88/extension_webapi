@@ -388,6 +388,7 @@ class ModuleBugs extends Controller
                                     'module_bugs.moduleId',
                                     'module_bugs.lkBugStatusId',
                                     'module_bugs.jiraTicketUrl',
+                                    'module_bugs.bugOriginUrl',
                                     'projects.id AS projectId',
                                     'projects.jiraId AS jiraId',
                                     'projects.projectKey',
@@ -411,6 +412,7 @@ class ModuleBugs extends Controller
                     'moduleName' => $bug['moduleName'],
                     'lkBugStatusId' => $bug['lkBugStatusId'],
                     'lkBugStatus' => LkBugStatus::where('lkBugStatusId','=',$bug['lkBugStatusId'])->first()->description,
+                    'url' => $bug['bugOriginUrl'],
                     'bugEnvironment' => $bug['bugEnvironment']['environment']['name'],
                     'bugEnvironmentId' => $bug['bugEnvironment']['environmentId'],
                     'title' => $bug['title']['title'],
@@ -550,6 +552,7 @@ class ModuleBugs extends Controller
             'environmentId'=>'required|integer|exists:environments,environmentId',
             'screenshot'=>'required',
             'saveToJira'=>'required|integer|max:1|min:0',
+            'url'=>'required|string|max:1000'
         ]);
 
         // Validates if the requested module ID belongs to the user.
@@ -565,6 +568,7 @@ class ModuleBugs extends Controller
             $bug = new ModuleBug();
             $bug['moduleId'] = $request['moduleId'];
             $bug['lkBugStatusId'] = $activeBugstatus;
+            $bug['bugOriginUrl'] = $request['url'];
             $bug->save();
 
             $environment = new BugEnvironment();

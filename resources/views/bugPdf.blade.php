@@ -73,6 +73,10 @@
         <div class="xpath"><b>Xpath:</b> {{ $xpath }}</div>
         @endisset
 
+    @isset($url)
+        <div class="url"><b>URL:</b> {{ $url }}</div>
+        @endisset
+
     @isset($screenshot)
         <div class="screenshot" style="background-image: url('{{$screenshot}}'); background-repeat: no-repeat; background-position: center; background-image-resize: 3"></div>
         @endisset

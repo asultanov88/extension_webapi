@@ -47,6 +47,7 @@ class GeneratePdf extends Controller
                                     'stepsToReproduce' => $request->stepsToReproduce?$request->stepsToReproduce:null,                         
                                     'expectedResult' => $request->expectedResult?$request->expectedResult:null,                         
                                     'xpath' => $request->xpath?$request->xpath:null,
+                                    'url' => $request->url?$request->url:null,
                                     ])->render();
             
             $mpdf->SetHeader('Bug Report||{PAGENO}');

@@ -22,6 +22,8 @@ class TestUserController extends Controller
         .$bugObject['expectedResult']
         ."\n*Actual Result:*\n"
         .$bugObject['actualResult']
+        ."\n*URL:*\n"
+        .$bugObject['url']
         ."\n\n*EZBug Attachments:*\n"
         ."*[Screenshot|$screenshotPath]*\n";
 

@@ -31,6 +31,7 @@ class ModuleBug extends Model
         'jiraTicket',
         'jiraId',
         'jiraTicketUrl',
+        'bugOriginUrl',
     ];
 
     // 1st 'bugId' is the primary key in 'module_bugs' table.
