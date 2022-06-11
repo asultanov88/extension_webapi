@@ -18,8 +18,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // NOTE: cron job commans for hawkhost (change as needed):
-        // * * * * * cd /home/evendora/extension-service-api && php artisan schedule:run >> /dev/null 2>&1
+        /**
+         * NOTE: cron job command for hawkhost (change as needed):
+         * /usr/local/bin/php /home/evendora/extension-service-api/artisan schedule:run
+         */
         
         // Deletes all processed and more than 1 hour old temporary attachments.
         $schedule->call(function () {
@@ -39,7 +41,7 @@ class Kernel extends ConsoleKernel
                 }
             }
 
-        })->everyMinute()->timezone('America/New_York');	
+        })->daily()->timezone('America/New_York');	
 
         // Deletes all generated PDF and related screenshot files.
         $schedule->call(function () {
@@ -62,7 +64,7 @@ class Kernel extends ConsoleKernel
                 }
             }
 
-        })->everyMinute()->timezone('America/New_York');
+        })->daily()->timezone('America/New_York');
     }
 
     /**
