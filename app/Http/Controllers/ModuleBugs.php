@@ -191,7 +191,8 @@ class ModuleBugs extends Controller
             'description'=>'required|string|max:1000|min:1',
             'stepsToReproduce'=>'required|string|max:1000|min:1',
             'expectedResult'=>'required|string|max:1000|min:1',
-            'environmentId'=>'required|integer|exists:environments,environmentId',            
+            'environmentId'=>'required|integer|exists:environments,environmentId', 
+            'timeStamp'=>'required',           
         ]);
 
         // Validates if the requested bug ID belongs to the user.
@@ -208,7 +209,10 @@ class ModuleBugs extends Controller
                             ->where('projects.clientId','=',$request['clientId'])
                             ->first();
 
-            $bug->update(['moduleId' => $request['moduleId']]);       
+            $bug->update([
+                            'moduleId' => $request['moduleId'],
+                            'updated_at' => $request['timeStamp']
+                        ]);       
             $bug->bugEnvironment()->update(['environmentId'=>$request['environmentId']]);
             $bug->title()->update(['title'=>$request['title']]);
             $bug->actualResult()->update(['actualResults'=>$request['actualResult']]);        
@@ -513,6 +517,7 @@ class ModuleBugs extends Controller
                                     'projects.projectKey',
                                     'module_bugs.bugId',
                                     'module_bugs.created_at',
+                                    'module_bugs.updated_at',
                                     'bug_titles.title',
                                     'bug_xpath.xpath',
                                     'bug_screenshots.screenshotPath'
@@ -560,7 +565,8 @@ class ModuleBugs extends Controller
             'environmentId'=>'required|integer|exists:environments,environmentId',
             'screenshot'=>'required',
             'saveToJira'=>'required|integer|max:1|min:0',
-            'url'=>'required|string|max:1000'
+            'url'=>'required|string|max:1000',
+            'timeStamp'=>'required'
         ]);
 
         // Validates if the requested module ID belongs to the user.
@@ -577,6 +583,8 @@ class ModuleBugs extends Controller
             $bug['moduleId'] = $request['moduleId'];
             $bug['lkBugStatusId'] = $activeBugstatus;
             $bug['bugOriginUrl'] = $request['url'];
+            $bug['created_at'] = $request['timeStamp'];
+            $bug['updated_at'] = $request['timeStamp'];
             $bug->save();
 
             $environment = new BugEnvironment();
