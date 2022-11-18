@@ -47,7 +47,7 @@ class ModuleBugs extends Controller
             $jiraApiToken = Crypt::decryptString($request->jiraSettings['JiraApiKey']);
             $issueTypeId = $request->jiraSettings['JiraIssueType'];
             $bugId = $request['bugId'];
-            $bugObject = $this->getBugdetails($request, false);
+            $bugObject = $this->getBugDetails($request, false);
             $projectId = $bugObject['projectJiraId'];
             $unableToCreateJira = false;
     
@@ -346,6 +346,8 @@ class ModuleBugs extends Controller
                                         array(
                                             'projects.projectKey',
                                             'module_bugs.bugId',
+                                            'module_bugs.created_at AS createdAt',
+                                            'module_bugs.updated_at AS updatedAt',
                                             'bug_titles.title',
                                             'bug_xpath.xpath',
                                             'bug_screenshots.screenshotPath'
@@ -379,7 +381,7 @@ class ModuleBugs extends Controller
     /**
      * Get bug details by bugId.
      */
-    public function getBugdetails(Request $request, $returnJson = true){
+    public function getBugDetails(Request $request, $returnJson = true){
         $request->validate([
             'bugId'=>'required|integer|exists:module_bugs,bugId',
         ]);

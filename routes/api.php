@@ -42,7 +42,7 @@ Route::middleware('client')->delete('/module', [ClientModulesController::class, 
 // Bug.
 Route::middleware('client')->post('/bug', [ModuleBugs::class, 'postBug']);
 Route::middleware('client')->get('/bug', [ModuleBugs::class, 'getBugList']);
-Route::middleware('client')->get('/bug-details', [ModuleBugs::class, 'getBugdetails']);
+Route::middleware('client')->get('/bug-details', [ModuleBugs::class, 'getBugDetails']);
 Route::middleware('client')->get('/bug-global-search', [ModuleBugs::class, 'getGlobalSearch']);
 Route::middleware('client')->get('/bug-status-list', [ModuleBugs::class, 'getBugStatusList']);
 Route::middleware('client')->patch('/bug', [ModuleBugs::class, 'patchBug']);
