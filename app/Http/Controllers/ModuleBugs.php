@@ -405,6 +405,7 @@ class ModuleBugs extends Controller
                                     'modules.name AS moduleName',
                                     'module_bugs.created_at',
                                     'module_bugs.updated_at',
+                                    'module_bugs.createdById',
                                 )
                             );
             
@@ -436,6 +437,7 @@ class ModuleBugs extends Controller
                     'attachments' => $this->getPath($bug->attachment, 'attachmentPath'),
                     'createdAt' => $bug['created_at'],
                     'updatedAt' => $bug['updated_at'],
+                    'createdById' => $bug['createdById'],
                 ];
             }
             
@@ -566,6 +568,7 @@ class ModuleBugs extends Controller
             'screenshot'=>'required',
             'saveToJira'=>'required|integer|max:1|min:0',
             'url'=>'required|string|max:1000',
+            'userProfileId'=>'integer|min:1'
         ]);
 
         // Validates if the requested module ID belongs to the user.
@@ -582,6 +585,10 @@ class ModuleBugs extends Controller
             $bug['moduleId'] = $request['moduleId'];
             $bug['lkBugStatusId'] = $activeBugstatus;
             $bug['bugOriginUrl'] = $request['url'];
+            // Save userProfileId if user is a registered user.
+            if($request->filled('userProfileId')){
+                $bug['createdById'] = $request['userProfileId'];
+            }
             $bug->save();
 
             $environment = new BugEnvironment();

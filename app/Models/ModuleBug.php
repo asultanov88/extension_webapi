@@ -32,6 +32,7 @@ class ModuleBug extends Model
         'jiraId',
         'jiraTicketUrl',
         'bugOriginUrl',
+        'createdById',
         'created_at',
         'updated_at',
     ];

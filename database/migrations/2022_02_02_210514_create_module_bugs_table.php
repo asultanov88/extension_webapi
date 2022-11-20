@@ -22,6 +22,7 @@ class CreateModuleBugsTable extends Migration
             $table->integer('jiraId')->nullable();
             $table->longtext('jiraTicketUrl')->nullable();
             $table->longtext('bugOriginUrl')->nullable();
+            $table->integer('createdById')->nullable();
             $table->timestamps();
         });
     }
