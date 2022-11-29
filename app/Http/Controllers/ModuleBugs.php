@@ -346,8 +346,8 @@ class ModuleBugs extends Controller
                                         array(
                                             'projects.projectKey',
                                             'module_bugs.bugId',
-                                            'module_bugs.created_at AS createdAt',
-                                            'module_bugs.updated_at AS updatedAt',
+                                            'module_bugs.created_at',
+                                            'module_bugs.updated_at',
                                             'bug_titles.title',
                                             'bug_xpath.xpath',
                                             'bug_screenshots.screenshotPath'
@@ -435,8 +435,8 @@ class ModuleBugs extends Controller
                     'jiraTicketUrl' => $bug['jiraTicketUrl'],
                     'screenshots' => $this->getPath($bug->screenshot, 'screenshotPath'),
                     'attachments' => $this->getPath($bug->attachment, 'attachmentPath'),
-                    'createdAt' => $bug['created_at'],
-                    'updatedAt' => $bug['updated_at'],
+                    'created_at' => $bug['created_at'],
+                    'updated_at' => $bug['updated_at'],
                     'createdById' => $bug['createdById'],
                 ];
             }
