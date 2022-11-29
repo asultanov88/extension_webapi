@@ -518,8 +518,8 @@ class ModuleBugs extends Controller
                                 array(
                                     'projects.projectKey',
                                     'module_bugs.bugId',
-                                    'module_bugs.created_at AS createdAt',
-                                    'module_bugs.updated_at AS updatedAt',
+                                    'module_bugs.created_at',
+                                    'module_bugs.updated_at',
                                     'bug_titles.title',
                                     'bug_xpath.xpath',
                                     'bug_screenshots.screenshotPath'
